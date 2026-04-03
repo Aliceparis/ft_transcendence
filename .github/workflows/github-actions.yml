@@ -1,0 +1,46 @@
+# Every time a pull-request to the main branch is made, 
+# or a push to any branch modifies files in the frontend directory,
+# GitHub Actions will run the "frontend" job in its runner:
+# 1. Checkout the repository code
+# 2. Set up Node.js
+# 3. Install npm dependencies
+# 4. Run Svelte/TypeScript type checks
+# 5. Build the project
+
+name: GitHub Actions frontend
+run-name: ${{ github.actor }} is testing out GitHub Actions
+
+on:
+  push:
+    branches: [ "**" ]
+    paths:
+      - "frontend/**"
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - "frontend/**"
+
+jobs:
+  frontend:
+    runs-on: ubuntu-24.04
+    
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v5
+      
+      - name: setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version:  20
+
+      - name: install dependencies
+        run: npm install
+        working-directory: frontend
+
+      - name: type check
+        run: npm run check
+        working-directory: frontend
+
+      - name: build project
+        run: npm run build
+        working-directory: frontend
