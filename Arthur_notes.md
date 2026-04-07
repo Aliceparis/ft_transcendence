@@ -64,8 +64,9 @@ Express.js est parfois confondu avec Node.js. Node.js est le moteur d'exécution
 
 ## Workflow Backend 
 
-Jianxin a commence la partie back du jeu en implementant la gestion des questions,
-une partie "router" de
+- creer une strucure coherente aux deux parties 
+- plug une pseudo DB pour tester le back
+- merge 2 parties (Jianxin/Arthur)
 
 ### etape A — creation d’une partie
 Le front envoie :
