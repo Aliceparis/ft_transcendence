@@ -1,4 +1,4 @@
-import type { UserDB, RegisterInput, UserOutput } from "@myapp/shared";
+import type { UserDB, RegisterInput, UserOutput } from "../../../shared/user.schema.js";
 import {prisma} from '../database/';
 import bcrypt from 'bcrypt';
 
