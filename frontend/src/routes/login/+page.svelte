@@ -19,12 +19,12 @@
 </div>
 
 <!-- Handle form submit: prevent reload and send POST request to backend -->
-<script>
-	async function handleSubmit(event) {
+<script lang="ts">
+	async function handleSubmit(event: SubmitEvent) {
 		event.preventDefault();
-		const form = event.target;
-		const email = form.email.value;
-		const password = form.password.value;
+		const form = event.target as HTMLFormElement;
+		const email = (form.email as HTMLInputElement).value;
+		const password = (form.password as HTMLInputElement).value;
 
 		try {
 			const response = await fetch('http://localhost:3000/login', {
