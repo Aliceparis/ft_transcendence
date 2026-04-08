@@ -6,7 +6,7 @@
 /*   By: ikayiban <ikayiban@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 18:30:48 by ikayiban          #+#    #+#             */
-/*   Updated: 2026/04/08 13:20:50 by ikayiban         ###   ########.fr       */
+/*   Updated: 2026/04/08 14:51:42 by ikayiban         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,20 +16,20 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 const prisma: PrismaClient = new PrismaClient();
-const __filename: String = fileURLToPath(import.meta.url);
-const __dirname: String = path.dirname(__filename);
+const __filename: string = fileURLToPath(import.meta.url);
+const __dirname: string = path.dirname(__filename);
 
 interface Question
 {
-    text:       String;
-    options:    String[];
-    answer:     String;
+    text:       string;
+    options:    string[];
+    answer:     string;
 }
 
 interface Quiz
 {
-    title:      String;
-    category:   String;
+    title:      string;
+    category:   string;
     questions:  Question[];
 }
 

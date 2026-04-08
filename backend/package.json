@@ -3,7 +3,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "start": "node index.js",
+    "start": "node dist/index.js",
     "dev": "nodemon --exec ts-node index.ts",
     "db:migrate": "prisma db push --schema=./database/schema.prisma",
     "db:seed": "ts-node database/seed.ts",
