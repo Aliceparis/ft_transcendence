@@ -1,38 +1,45 @@
-# --- ÉTAPE 1 : Build ---
+# ---- Build Stage ----
 FROM node:20-alpine AS builder
 
-WORKDIR /app
-
-# Copier les fichiers de dépendances
-COPY package*.json ./
-COPY tsconfig.json ./
-
-# Installer toutes les dépendances (y compris devDependencies pour compiler)
-RUN npm install
-
-# Copier le reste du code source
-COPY . .
-
-# Compiler le TypeScript en JavaScript
-RUN npm run build
-
-# --- ÉTAPE 2 : Exécution ---
-FROM node:20-alpine AS runner
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
 WORKDIR /app
 
-# Définir l'environnement sur production
-ENV NODE_ENV=production
+COPY pnpm-workspace.yaml ./
+COPY package.json ./
 
-# Copier uniquement les fichiers nécessaires depuis l'étape de build
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/dist ./dist
+COPY shared/package.json ./shared/
+COPY backend/package.json ./backend/
 
-# Installer uniquement les dépendances de production (plus léger, plus sûr)
-RUN npm install --omit=dev
+# 去掉 --frozen-lockfile，改用 --no-frozen-lockfile
+RUN pnpm install --no-frozen-lockfile
 
-# Exposer le port sur lequel ton Express tourne (ex: 3000)
+COPY shared/ ./shared/
+COPY backend/ ./backend/
+
+RUN pnpm --filter @myapp/shared build
+RUN pnpm --filter backend build
+
+# ---- Production Stage ----
+FROM node:20-alpine AS production
+
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+WORKDIR /app
+
+COPY pnpm-workspace.yaml ./
+COPY package.json ./
+COPY shared/package.json ./shared/
+COPY backend/package.json ./backend/
+
+RUN pnpm install --no-frozen-lockfile --prod
+
+COPY --from=builder /app/shared/dist ./shared/dist
+COPY --from=builder /app/backend/dist ./backend/dist
+
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+USER appuser
+
 EXPOSE 3000
 
-# Lancer l'application
-CMD ["node", "dist/main.js"]
+CMD ["node", "backend/dist/index.js"]

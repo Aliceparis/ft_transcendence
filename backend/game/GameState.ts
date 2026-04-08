@@ -1,1 +1,0 @@
-// stocker et renvoyer les etats 
