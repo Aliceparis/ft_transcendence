@@ -27,7 +27,7 @@ export  class AuthService{
         JWT_SECRET,
         {expiresIn: '7d'}
     )
-
+    console.log('new user created with id: ', newuser.id);
     return {
         ...newuser,
         token

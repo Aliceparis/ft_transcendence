@@ -65,7 +65,7 @@ RUN apt-get update \
 
 WORKDIR /app
 
-COPY backend/package*.json .
+COPY backend/package*.json ./
 RUN npm install
 
 COPY backend/ .
@@ -78,7 +78,7 @@ RUN chmod +x entrypoint.sh
 EXPOSE 3000
 
 ENTRYPOINT ["./entrypoint.sh"]
-CMD ["npm", "start"]
+CMD ["npm", "run", "dev"]
 
 
 

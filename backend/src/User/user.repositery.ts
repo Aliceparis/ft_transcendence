@@ -1,5 +1,5 @@
 import type { UserDB, RegisterInput, UserOutput } from "@shared/user.schema";
-import {prisma} from '@prisma/client';
+import {prisma} from '../lib/prisma';
 import bcrypt from 'bcrypt';
 
 export class UserRepository{
@@ -10,7 +10,7 @@ export class UserRepository{
             data:{
                 username: input.username,
                 email: input.email,
-                hashed_password,
+                password: hashed_password,
             }
         })
         return {
