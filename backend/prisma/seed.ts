@@ -13,6 +13,7 @@
 import { PrismaClient } from '@prisma/client';
 import path from 'path';
 import fs from 'fs';
+import bcrypt from 'bcrypt';
 import { fileURLToPath } from 'url';
 
 const prisma: PrismaClient = new PrismaClient();
@@ -34,12 +35,14 @@ interface Quiz
 }
 
 async function main(): Promise<void> {
+    const hashed_password = await bcrypt.hash("admin_pass", 10);
     const admin = await prisma.user.upsert({
         where: { email: "seedAdmin@42paris.fr" },
         update: {},
         create: {
             email: "seedAdmin@42paris.fr",
             username: "admin",
+            hashed_password: hashed_password,
             role: "ADMIN",
             score: 0
         }

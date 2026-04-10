@@ -12,7 +12,9 @@ model User {
     createdAt   DateTime    @default(now())
     email       String      @unique @db.VarChar(255)
     username    String      @unique @db.VarChar(255)
-    score       Int?         @default(0)
+    password    String      @db.VarChar(255)
+    url         String?     @db.VarChar(512)
+    score       Int?        @default(0)
     role        Role        @default(USER)
     quizzes     Quiz[]
 }
