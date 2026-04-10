@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   seed.ts                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ikayiban <ikayiban@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jmen <jmen@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 18:30:48 by ikayiban          #+#    #+#             */
-/*   Updated: 2026/04/08 14:51:42 by ikayiban         ###   ########.fr       */
+/*   Updated: 2026/04/10 11:49:48 by jmen             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ async function main(): Promise<void> {
         create: {
             email: "seedAdmin@42paris.fr",
             username: "admin",
-            hashed_password: hashed_password,
+            password: hashed_password,
             role: "ADMIN",
             score: 0
         }
