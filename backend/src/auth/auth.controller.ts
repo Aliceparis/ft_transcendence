@@ -46,17 +46,25 @@ import {valideRequest} from "../middleware/zod_check"
 //    }
 //}
 
-//version for middleware of zod 
+//version for middleware of zod, add token in cookie 
 export class AuthController{
     private authservice: AuthService;
     constructor(){
         this.authservice = new AuthService();
     }
 
+    private cookieOptions = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict' as const,
+        maxAge: 7 * 24 * 60 * 60 * 1000
+    };
+
     register = async(req: Request, res: Response) =>{
         try{
-            const result = await this.authservice.register(req.valideBody)
-            res.status(201).json(result)
+            const {token, user} = await this.authservice.register(req.valideBody)
+            res.cookie('auth_token', token, this.cookieOptions);
+            res.status(201).json(user);
         }catch(error){
             if (error instanceof AppError){
                 return res.status(error.statusCode).json({message: error.message})
@@ -67,14 +75,20 @@ export class AuthController{
 
     login = async(req: Request, res: Response) =>{
         try{
-            const result = await this.authservice.login(req.valideBody)
-            res.json(result);
+            const {token, user} = await this.authservice.login(req.valideBody)
+            res.cookie('auth_token', token, this.cookieOptions);
+            res.json(user);
             
         }catch(error) {
             if (error instanceof AppError){
-                return res.status(error.statusCode).message({message: error.message})
+                return res.status(error.statusCode).json({message: error.message})
             }
             res.status(500).json({message: "Internal Server error for login"})
         }
+    }
+    
+    logout = async(req: Request, res: Response) => {
+        res.clearCookie('auth_token', this.cookieOptions);
+        res.json({message: "Logged out"})
     }
 }

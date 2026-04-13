@@ -1,5 +1,5 @@
 import { UserRepository } from './user.repositery'
-import type {UserDB} from '@shared/user.schema'
+import type {UserOutput} from '@shared/user.schema'
 import { AppError } from 'src/error/apperror';
 
 export class UserService{
@@ -8,7 +8,7 @@ export class UserService{
         this.userrepository = new UserRepository();
     }
 
-    async get_profile(input: string): Promise<Omit<UserDB, 'password'>>{
+    async get_profile(input: string): Promise<UserOutput>{
         const user = await this.userrepository.find_by_id(input);
         if (!user){
             throw new AppError("user not exist", 401)

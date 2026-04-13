@@ -1,5 +1,6 @@
 <!-- Handle form submit: prevent reload and send POST request to backend -->
 <script lang="ts">
+	import { goto } from '$app/navigation';	
 	async function handleSubmit(event: SubmitEvent) {
 		event.preventDefault();
 		const form = event.target as HTMLFormElement;
@@ -16,6 +17,8 @@
 
 			const result = await response.json();
 			console.log(result);
+
+			 await goto('/api/user/me'); // redirection to profil
 		}
 		catch (error){
 			console.error('Error login: ', error);

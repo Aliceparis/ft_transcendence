@@ -16,8 +16,7 @@ export class UserRepository{
         return {
             id: newuser.id,
             username: newuser.username,
-            email: newuser.email,
-            token: '', //token update by authendification 
+            email: newuser.email
         }
     }
 

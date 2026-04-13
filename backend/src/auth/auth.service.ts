@@ -1,9 +1,10 @@
 import {UserRepository} from '../User/user.repositery';
-import type { LoginInput, RegisterInput, UserOutput  } from '@shared/user.schema';
+import type { LoginInput, RegisterInput, UserOutput, AuthResult } from '@shared/user.schema';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { AppError } from 'src/error/apperror';
 
+const JWT_SECRET = process.env.JWT_SECRET;
 
 export  class AuthService{
     private userrepository: UserRepository;
@@ -12,7 +13,7 @@ export  class AuthService{
         this.userrepository = new UserRepository();
     }
     
-    async register(input: RegisterInput):Promise<UserOutput>{
+    async register(input: RegisterInput):Promise<AuthResult>{
     //1. check mail or username existe
     //2. create with repository 
     //3. generate jwt token update in useroutput and return 
@@ -22,20 +23,18 @@ export  class AuthService{
     }
 
     const newuser = await this.userrepository.create(input)
-    const JWT_SECRET = process.env.JWT_SECRET;
     const token = jwt.sign(
         {id: newuser.id},
         JWT_SECRET,
         {expiresIn: '7d'}
     )
-    console.log('new user created with id: ', newuser.id);
     return {
-        ...newuser,
-        token
+        token,
+        ...newuser
     }
     }
 
-    async login(input: LoginInput): Promise<UserOutput>{
+    async login(input: LoginInput): Promise<AuthResult>{
         //1. find the user bye mail or username
         const user = await this.userrepository.find_by_identifiant(input.email);
         if (!user){
@@ -55,10 +54,8 @@ export  class AuthService{
         )
         //return data with token
         return {
-            id: user.id,
-            username: user.username,
-            email: user.email,
-            token
+            token,
+            user: {id: user.id, username: user.username, email: user.email}
         }
     }
 }

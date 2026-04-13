@@ -5,6 +5,6 @@ import { UserController } from "./user.controller";
 const router = Router();
 const usercontroller = new UserController();
 
-router.get('/profil', verifyToken, usercontroller.profil)
+router.get('/me', verifyToken, usercontroller.GetProfil)
 
 export const UserRouter = router;

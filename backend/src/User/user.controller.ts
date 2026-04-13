@@ -8,7 +8,7 @@ export class UserController{
         this.userservice = new UserService()
     }
 
-    profil = async(req: Request, res: Response)=>{
+    GetProfil = async(req: Request, res: Response)=>{
         try{
             const result = await this.userservice.get_profile(req.user.id);
             res.json(result)

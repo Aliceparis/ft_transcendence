@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export const verifyToken = (req: Request, res: Response, next: NextFunction)=>{
-    const token =  req.headers.authorization?.split(' ')[1]
+    const token =  req.cookies.auth_token;
 
     if (!token){
         return res.status(401).json({message: "not login"})
