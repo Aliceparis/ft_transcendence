@@ -11,3 +11,8 @@ fonctionnement of test:
 2. test with curl: 
     - in terminal: curl -k (use to skipp the ssl) -X POST -H "Content-Type: application/json" -d '{"password": "1234864595", "email": "48e656@gmail.com", "username": "fegf8978d"} https://localhost:8888/login 
     -with application Insomnia: need to entry all type de request also 
+
+to do list: 
+    1. check the statuscode for error in Auth, like email exist already, cannot find 
+    2. finish profile for backend, need to redirection for front 
+    
