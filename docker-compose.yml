@@ -33,7 +33,7 @@ services:
       - db
     env_file:
       - .env
-      
+
   frontend:
     build: ./frontend
     image: frontend:custom
