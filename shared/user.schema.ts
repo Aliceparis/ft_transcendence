@@ -38,4 +38,4 @@ export const Auth_result = z.object({
     token: z.string(),
     user: User_Output
 })
-export type AuthResult = z.inder<typeof Auth_result>;
+export type AuthResult = z.infer<typeof Auth_result>;

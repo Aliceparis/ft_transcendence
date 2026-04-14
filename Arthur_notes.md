@@ -2,6 +2,13 @@
 - Implement a complete web-based game where users can play against each other (backend part: 1 point)
 - Implement a tournament system (1 point)
 - Store tournament scores on the Blockchain (2 points)
+- score et gestion daffichage au hasard des questions
+
+## Workflow Backend 
+
+- creer une strucure coherente aux deux parties 
+- plug une pseudo DB pour tester le back
+- merge 2 parties (Jianxin/Arthur)
 
 ## Current questions
 - Processus du focntionnement du jeu cote back (structure claire et utilisable de tous comme une class en cpp?)
@@ -62,11 +69,7 @@ Pour créer des routes (chemins correspondants à différentes pages ou services
 
 Express.js est parfois confondu avec Node.js. Node.js est le moteur d'exécution JavaScript côté serveur. Express.js est une couche logicielle construite au-dessus de Node.js pour simplifier le développement web.
 
-## Workflow Backend 
 
-- creer une strucure coherente aux deux parties 
-- plug une pseudo DB pour tester le back
-- merge 2 parties (Jianxin/Arthur)
 
 ### etape A — creation d’une partie
 Le front envoie :
