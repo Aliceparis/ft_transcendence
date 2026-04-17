@@ -1,6 +1,7 @@
 import { randomUUID } from 'crypto';
 import { GameInfo, GameState, IModeService, PublicGameState, StartGameResult } from "../game.types"
 import { GameBaseService } from '../game.base';
+import { AppError } from 'src/error/apperror';
 
 export class SoloService extends GameBaseService implements IModeService
 {
@@ -12,7 +13,7 @@ export class SoloService extends GameBaseService implements IModeService
 
         const questions = await this.questionService.fetchQuizQuestions(quizId);
         if (!questions || questions.length === 0)
-            return null;
+            throw new AppError('no questions', 404);
         
         const gameId = randomUUID();
         const gameState: GameState = {
@@ -42,7 +43,7 @@ export class SoloService extends GameBaseService implements IModeService
         const gameState = await this.gameRepository.findById(gameId);
 
         if (!gameState)
-            return null;
+            throw new AppError('Gamestate not find', 404);
 
         const toPublicState = (state: GameState): PublicGameState =>({
             gameId: state.gameId,
@@ -74,10 +75,10 @@ export class SoloService extends GameBaseService implements IModeService
         }
 
         const player = gameState.players[userId];
-        if (!player) return null;
+        if (!player) throw new AppError('player not find', );
 
         if (selectedAnswerIndex < 0 || selectedAnswerIndex >= currentQuestion.options.length){
-            return null;
+             throw new AppError('Index answer error', 400);
         }
         const isCorrect = selectedAnswerIndex === currentQuestion.correctAnswerIndex;
 

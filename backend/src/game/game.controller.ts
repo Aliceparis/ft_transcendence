@@ -1,66 +1,84 @@
 import { Request, Response } from 'express';
 import { GameServiceFactory } from './game.factory';
+import { AppError } from 'src/error/apperror';
+
 export class GameController
 {
     public static async start(req: Request, res: Response): Promise<void>
     {
         const service = GameServiceFactory.get(req.params.mode);
-        const userId = req.user; // userid is in httponly cookie 
+        const userId = req.user.id; // userid is in httponly cookie 
 
         if (!service)
         {
-            res.status(400).json({
+           return res.status(400).json({
                 success: false,
-                message: `Unknown game mode: ${req.params.mode}`,
+                error: {
+                    code : "UNKOWN GAME MODE",
+                    message: `Unknown game mode: ${req.params.mode}`,
+                },
                 data: null,
             });
-            return;
         }
 
-        const game = await service.startGame(userId);
-
-        if (!game)
-        {
-            res.status(200).json({
-                success: false,
-                message: 'No questions found.',
-                data: null,
+        try{
+            const game = await service.startGame(userId);
+            res.status(201).json({
+                success: true,
+                message: 'Game started.',
+                data: game,
             });
-            return;
-        }
+        }catch(error){
+            if (error instanceof AppError){
+                return res.status(error.statusCode).json({
+                    error:{
+                        code: error.code,
+                        message: error.message,
+                    },
+                });
+            }
+            console.error(error);
+            return res.status(500).json({
+                error: {
+                    code: "INTERNAL",
+                    message: "Internal start solo game",
+                }
+            })
 
-        res.status(201).json({
-            success: true,
-            message: 'Game started.',
-            data: game,
-        });
+        }
+        
+        
     }
 
     public static async answer(req: Request, res: Response): Promise<void>
     {
         const service = GameServiceFactory.get(req.params.mode);
-        const userId = req.user;
+        const userId = req.user.id;
 
         if (!service)
         {
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
-                message: `Unknown game mode: ${req.params.mode}`,
+                error: {
+                    code: "UNKOWN_GAME_MODE",
+                    message: `Unknown game mode: ${req.params.mode}`, 
+                },
                 data: null,
             });
-            return;
         }
 
         const gameId = req.params.gameId;
 
         if (!gameId)
         {
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
-                message: 'gameId is required.',
+                error:{
+                    code: "MISSING_GAME_ID",
+                    message: "gameid is required"
+                },
                 data: null,
             });
-            return;
         }
 
         const rawAnswer = req.body?.selectedAnswerIndex ?? req.query.selectedAnswerIndex;
@@ -68,30 +86,53 @@ export class GameController
 
         if (!Number.isInteger(selectedAnswerIndex))
         {
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
-                message: 'selectedAnswerIndex must be an integer.',
+                error: {
+                    code: "INVALIDE_ANSWER_INDEX",
+                    mesage: 'selectedAnswerIndex must be an integer.',
+                },
                 data: null,
             });
-            return;
         }
 
-        const result = await service.submitAnswer(gameId, selectedAnswerIndex, userId);
+        try{
+            const result = await service.submitAnswer(gameId, selectedAnswerIndex, userId);
 
-        if (!result)
-        {
-            res.status(404).json({
-                success: false,
-                message: 'Game not found.',
-                data: null,
+            if (!result)
+            {
+                return res.status(404).json({
+                    success: false,
+                    error:{
+                        code: "GAME_NOT_FOUND",
+                        message: 'Game not found.',
+                    },
+                    data: null,
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                message: result.gameresult.isFinished ? 'Game finished.' : 'Answer submitted.',
+                data: result,
             });
-            return;
+        }catch (error){
+            if (error instanceof AppError){
+                return res.status(error.statusCode).json({
+                    error: {
+                        code: error.code,
+                        message: error.message,
+                    },
+                })
+            }
+            console.error(error);
+            
+            return res.status(500).json({
+                error: {
+                    code: "INTERNAL",
+                    message: "Internal submitanswer in solo",
+                }
+            })
         }
-
-        res.status(200).json({
-            success: true,
-            message: result.gameresult.isFinished ? 'Game finished.' : 'Answer submitted.',
-            data: result,
-        });
     }
 }

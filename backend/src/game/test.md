@@ -1,6 +1,7 @@
-curl -X GET "http://localhost:3000/game/solo/start"
+curl -i -b cookies.txt http://localhost:3000/game/solo/start
 
-curl -i -c cookies.txt -X POST "http://localhost:3000/game/solo/YOUR_GAME_ID/answer" \
+
+curl -i -b cookies.txt -X POST "http://localhost:3000/game/solo/YOUR_GAME_ID/answer" \
   -H "Content-Type: application/json" \
   -d '{"selectedAnswerIndex": 0}'
 
