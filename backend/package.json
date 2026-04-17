@@ -29,7 +29,10 @@
     "cors": "^2.8.5",
     "zod": "^3.22.0",
     "dotenv": "^16.0.0",
-    "cookie-parser": "^1.4.7"
+    "cookie-parser": "^1.4.7",
+    "ws": "^8.20.0",
+    "crypto": "^1.0.1",
+    "redis": "^5.12.1"
   },
   "devDependencies": {
     "tsconfig-paths": "^4.2.0",

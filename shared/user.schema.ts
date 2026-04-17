@@ -39,3 +39,11 @@ export const Auth_result = z.object({
     user: User_Output
 })
 export type AuthResult = z.infer<typeof Auth_result>;
+
+//type input for change password, only oldpassword and 2 new password
+export const Change_Pd_Input = z.object({
+    oldpassword: z.string().min(1),
+    newpassword: z.string().min(3).max(20),
+    confirmpd: z.string().min(3).max(20)
+})
+export type ChangePdInput = z.infer<typeof Change_Pd_Input>;

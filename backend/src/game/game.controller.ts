@@ -1,23 +1,4 @@
 import { Request, Response } from 'express';
-//import { IModeService } from 'game/game.types';
-//import { GameRepository } from './';
-//import { SoloService } from './solo';
-// import { MultiplayerService } from './multiplayer'; // uncomment when ready
-// import { IAService } from './ia';                   // uncomment when ready
-
-//const repo = new GameRepository();
-//
-//const modeInstances: Record<string, IModeService> = {
-//    solo: new SoloService(repo),
-//    // multiplayer: new MultiplayerService(repo),
-//    // ia: new IAService(repo),
-//};
-//
-//function getModeService(mode: string): IModeService | null
-//{
-//    return modeInstances[mode] ?? null;
-//}
-
 import { GameServiceFactory } from './game.factory';
 export class GameController
 {
@@ -25,6 +6,7 @@ export class GameController
     {
         const service = GameServiceFactory.get(req.params.mode);
         const userId = req.user; // userid is in httponly cookie 
+
         if (!service)
         {
             res.status(400).json({
@@ -58,6 +40,7 @@ export class GameController
     {
         const service = GameServiceFactory.get(req.params.mode);
         const userId = req.user;
+
         if (!service)
         {
             res.status(400).json({
