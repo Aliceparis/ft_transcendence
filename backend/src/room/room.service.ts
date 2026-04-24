@@ -11,32 +11,9 @@ export class RoomService{
         this.roomrepository = new RoomRepository();
     }
 
-    async createRoom(params: CreateRoomParams): Promise<Room>{
-        const roomId = await randomUUID();
-
-        const hostPlayer: RoomPlayer = {
-            id: params.hostId,
-            nickname: params.hostNickname,
-            isReady: true,
-            joinedAt: Date.now(),
-        }
-
-        const room = {
-            roomId,
-            hostId: params.hostId,
-            players: {
-                [params.hostId]: hostPlayer,
-            },
-            status: 'waiting',
-            maxPlayers: 2,
-            createdAt: Date.now(),
-            gameId: '',
-        }
-        //save in redis
-        // await this.roomrepository.
-        return room
+    async createRoom(room: Room): Promise<void>{
+        await this.roomrepository.save(room);
     }
-
     async joinRoom(params: JoinRoomParams): Promise<Room>{
         //1. check the status of the room
         const room = await this.roomrepository.getroom(params.roomId);
@@ -64,7 +41,7 @@ export class RoomService{
                 nickname: params.playerNickname,
                 joinedAt: Date.now()
             }
-            await this.roomrepository.update(room.roomId);
+            await this.roomrepository.update(room);
             return room;
         }
 
@@ -75,7 +52,7 @@ export class RoomService{
             joinedAt: Date.now(),
         }
         room.players[params.playerId] = newplayer;
-        await this.roomrepository.update(room.roomId);
+        await this.roomrepository.update(room);
         
         return room
     }
@@ -92,13 +69,14 @@ export class RoomService{
         const remainPlayers = Object.keys(room.players).filter(id => id !== playerId);
         if (remainPlayers.length === 0){
             //redis delete the room
+            await this.roomrepository.delete(room.roomId);
             return null;
         }
         //if the player is the host: change the host of room
         if (room.hostId === playerId){
             const newhost = remainPlayers[0];
-            //update in redis
         }
+        await this.roomrepository.update(room);
         return await this.roomrepository.getroom(roomId);
     }
     async setPlayerReady(roomId: string, playerId: string, isReady: boolean): Promise<void>{
@@ -119,9 +97,11 @@ export class RoomService{
         const allPlayers = Object.values(room.players); // need to get from redis
         const allready = allPlayers.every(p => p.isReady);
         //4. check the condition to start a game, >= 2 players and everyone is ready 
-        if (allready && allPlayers.length >= 2){
+        if (allready && allPlayers.length >= room.maxPlayers){
             //redis update the status of room to starting
+            room.status = "starting";
         }
+        await this.roomrepository.update(room);
     }
 
     async deleteRoom(roomId: string): Promise<void>{
@@ -131,7 +111,7 @@ export class RoomService{
         return await this.roomrepository.getroom(roomId);
     }
     async save(room: Room): Promise<void>{
-        return await this.roomrepository.update(room.roomId); //????
+        return await this.roomrepository.update(room); //????
     }
 }
 

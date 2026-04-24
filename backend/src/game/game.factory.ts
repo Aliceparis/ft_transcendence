@@ -22,7 +22,7 @@ export class GameService {
             case "solo":
                 return this.soloService.startGame(userId);
             case "multiplayer":
-                return this.multiplayer.startMultiGame(mode, userId, nickname);
+                return this.multiplayer.startMultiGame({mode, userId, nickname});
             default:
                 throw new AppError(
                     "Unknown game mode",

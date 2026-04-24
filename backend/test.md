@@ -1,7 +1,7 @@
 ----- register: 
 curl -i -c cookies_1.txt -k -X POST http://localhost:3000/api/auth/register   -H "Content-Type: application/json"   -d '{
-    "username": "testuser",
-    "email": "test@gmail.com",
+    "username": "abcd",
+    "email": "abcd@gmail.com",
     "password": "12345678900"
   }'
 
@@ -39,7 +39,5 @@ curl -X POST http://localhost:3000/api/room/entry \
   curl -X POST http://localhost:3000/api/game/multiplayer/start \
   -b cookies_1.txt
 
-  curl -X POST http://localhost:3000/game/start \
-  -H "Content-Type: application/json" \
-  -b cookies_1.txt \
-  -d '{"mode":"multiplayer"}'
+  curl -X POST http://localhost:3000/api/game/:room/ready \
+  -b cookies_1.txt 

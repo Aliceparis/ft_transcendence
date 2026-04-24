@@ -6,7 +6,7 @@ import  type {
     StartMultiResult
 }from "../game.types"; 
 import { AppError, ErrorCode } from "src/error/apperror";
-import { Room } from "src/room/room.types";
+import { Room, RoomPlayer } from "src/room/room.types";
 import { RoomManager } from "src/room/room.manager";
 import { MatchService } from "src/game/multiplayer/match/match.service";
 
@@ -35,15 +35,16 @@ export class Multiplayer {
         const room = await this.roommanager.createRoom({
             hostId: params.userId,
             hostNickname: params.nickname,
-            players: match.players
+            players: match.players,
+            type: 'game'
         })
         return {
             status: 'matched',
-            players,
-            room.roomId, //need to tell the players the roomId in controller 
+            players: match.players,
+            roomId: room.roomId, //need to tell the players the roomId in controller 
         }
     }
-
+    
     //when all players are ready,start 
     async startGameFromRoom(room: Room): Promise<StartGameResult>{
         const result = await this.multiservice.startGame(room);

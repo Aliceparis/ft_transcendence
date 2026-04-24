@@ -7,30 +7,27 @@ import { AppError, ErrorCode } from "src/error/apperror";
 export class RoomController{
     constructor(private roommanager: RoomManager){
     }
+    setReady = async (req: Request, res: Response)=>{
 
-    EntryRoom = async (req: Request, res: Response)=>{
         try{
-            const {type, nickname, targetId, roomId } = req.body;
-            const result = await this.roommanager.entry(type,{
-                userId: req.user.id,
-                nickname,
-                targetId: targetId || roomId,
-            })
-            return res.status(200).json(
-                Apiresponse.success(result, "success to join a room")
+            const result = await this.roommanager.setReady(
+               req.params.roomId, req.user.id, true
             )
-        }catch (error){            
-                if(error instanceof AppError){
-                    return res.status(error.statusCode).json(
-                        Apiresponse.error(error.code, error.message)
-                    )
-                }
-                return res.status(500).json(
-                    Apiresponse.error(ErrorCode.INTERNAL_ERROR, "Internal EntryRoom error")
+            return res.status(200).json(
+                Apiresponse.success(result, "set ready update")
+            )
+        }catch (error){
+            console.error(error)
+            if (error instanceof AppError){
+                return res.status(error.statusCode).json(
+                    Apiresponse.error(error.code, error.message)
                 )
             }
+            return res.status(500).json(
+                Apiresponse.error("INTERNAL_ERROR", "Internal setready")
+            )
+        }
     }
-
 }
 /****
  *  room input: 

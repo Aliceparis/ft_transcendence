@@ -20,7 +20,7 @@ export class RoomManager{
         const hostPlayer: RoomPlayer = {
             id: params.hostId,
             nickname: params.hostNickname,
-            isReady: true,
+            isReady: false,
             joinedAt: Date.now(),
         }
 
@@ -31,7 +31,7 @@ export class RoomManager{
                     players[p.userId] = {
                         id: p.userId,
                         nickname: p.nickname,
-                        isReady: true,
+                        isReady: false,
                         joinedAt: Date.now(),
                     };
                 }
@@ -39,16 +39,17 @@ export class RoomManager{
         }
 
         const room = {
+            type: params.type,
             roomId,
             hostId: params.hostId,
             players,
             status: 'waiting',
-            maxPlayers: 2,
+            maxPlayers: params.maxPlayers ?? 2, 
             createdAt: Date.now(),
             gameId: '',
         }
         //save in redis
-        // await this.roomrepository.
+        await this.roomservice.createRoom(room);
         return room
     }
     async entry(type: 'game' | 'chat', params: RoomEntryParams): Promise<RoomEntryResult>{
@@ -61,6 +62,7 @@ export class RoomManager{
     }
 
     async setReady(roomId: string, userId: string, isready: boolean){
+        const room = await this.roomservice.getRoom(roomId);
         return this.roomservice.setPlayerReady(roomId, userId, isready);
     }
 

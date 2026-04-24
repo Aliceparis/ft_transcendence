@@ -12,7 +12,7 @@ export class GameController
     {
         try{
             const result = await this.gameService.startGame({
-                mode: req.params,
+                mode: req.params.mode,
                 userId: req.user.id,
                 nickname: req.user.username
             })
@@ -25,6 +25,8 @@ export class GameController
                 Apiresponse.success(result, "Game started")
             );
         }catch(error){
+            console.error(error);
+            
             if (error instanceof AppError){
                 return res.status(error.statusCode).json(
                     Apiresponse.error(error.code, error.message)
@@ -35,7 +37,7 @@ export class GameController
             )
         } 
     }
-
+    
     answer = async (req: Request, res: Response): Promise<void> => {
         const userId = req.user.id;
 
