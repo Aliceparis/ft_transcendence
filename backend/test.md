@@ -1,7 +1,7 @@
 ----- register: 
-curl -i -c cookies_1.txt -k -X POST http://localhost:3000/api/auth/register   -H "Content-Type: application/json"   -d '{
-    "username": "abcde22fd",
-    "email": "abcde2d@gmail.com",
+curl -i -c cookies_2.txt -k -X POST http://localhost:3000/api/auth/register   -H "Content-Type: application/json"   -d '{
+    "username": "abcde",
+    "email": "abcde@gmail.com",
     "password": "12345678900"
   }'
 curl -i -c cookies_1.txt -k -X POST http://localhost:3000/api/auth/register   -H "Content-Type: application/json"   -d '{
@@ -37,14 +37,14 @@ curl -i -b cookies_1.txt -k -X POST https://localhost:8888/api/user/me/changepas
   -b cookies_2.txt
 
 --------set ready 
-  curl -X POST http://localhost:3000/api/game/multiplayer/ready/f95b62af-c3cf-4b13-984c-f3f7dfe68969 \
+  curl -X POST http://localhost:3000/api/game/multiplayer/ready/2efaabbe-04b1-4ab3-b5af-44b405e89bc1 \
   -b cookies_1.txt \
   -H "Content-Type: application/json" \
   -d '{
     "isReady": true
   }'
 -----------submit answer 
-curl -i -X POST "http://localhost:3000/game/multiplayer/e087df91-4109-408f-a394-cb44bc476f7a/answer" \
+curl -i -X POST "http://localhost:3000/api/game/multiplayer/12c2ea1f-9a3e-479c-aa29-af26c25de8df/answer" \
   -b cookies_1.txt
   -H "Content-Type: application/json" \
   -d '{"selectedAnswerIndex": 0}'

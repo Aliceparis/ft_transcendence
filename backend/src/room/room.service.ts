@@ -63,8 +63,6 @@ export class RoomService{
             "Room not exist", 
             ErrorCode.ROOM_NOT_AVAILABLE,
         );
-        // redis delete player
-
         // check the nombre of players in the room after, if ===0 delete
         const remainPlayers = Object.keys(room.players).filter(id => id !== playerId);
         if (remainPlayers.length === 0){
@@ -79,6 +77,7 @@ export class RoomService{
         await this.roomrepository.update(room);
         return await this.roomrepository.getroom(roomId);
     }
+
     async setPlayerReady(roomId: string, playerId: string, isReady: boolean): Promise<{ allReady: boolean; room: Room }>{
         //1. get the player in redis
         const room = await this.roomrepository.getroom(roomId);

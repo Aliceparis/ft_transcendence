@@ -3,6 +3,7 @@ export type RoomPlayer = {
     nickname: string;
     isReady: boolean;
     joinedAt: number;
+    connectStatus?: 'connected' | 'disconnected' | 'offline'; // for future use
     socketId?: string //for socket 
 }
 

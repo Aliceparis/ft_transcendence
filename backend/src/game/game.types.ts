@@ -26,7 +26,7 @@ export type Player = {
     id: string; //playerid
     score: number;
     answers: PlayerAnswer[];
-    status: "online" | "offline" | "playing" | 'answered';
+    status: "playing" | 'answered';
     Totaltime: number;
 
     isAI?: boolean;
