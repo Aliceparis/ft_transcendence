@@ -3,10 +3,7 @@
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 
-	let { children } = $props();
-	let connected = false; // for preliminary testing.
-
-	async function handleGameMode(mode: "solo" | "IA" | "tournament" | "multiplayer") 
+	async function handleGameMode(mode: "solo" | "IA" | "tournament" | "multiplayer")
 	{
 		await goto(`/game?mode=${mode}`);
   	}

@@ -8,33 +8,29 @@ import cors from 'cors';
 import { AuthRouter } from './auth/auth.router';
 import { UserRouter } from './User/user.router';
 import {gameRouter} from './game/game.router';
-import { redis } from './lib/redis';
+import { RoomRouter } from './room/room.router';
+import {initRedis} from './lib/redis';
 
 const app = express();
 const PORT = 3000;
 
 app.use(cors({
-  origin: 'https://localhost:8888',
+  origin: 'https://localhost:8888', // must match the Origin header sent by the browser (protocol + host + port)
   credentials: true
 }));
 
 // ====== INIT FUNCTION ======
 const start = async () => {
   try {
-    // 1. Redis connect
-    await redis.connect();
-    console.log("Redis connected");
-
-    await redis.set("test", "ok");
-    console.log(await redis.get("test"));
-
+    await initRedis();
     // 2. Express setup
-    app.use(express.json());
     app.use(cookieParser());
+    app.use(express.json());
 
     app.use('/api/auth', AuthRouter);
     app.use('/api/user', UserRouter);
-    app.use('/game', gameRouter);
+    app.use('/api/game', gameRouter);
+    //app.use('/api/room', RoomRouter);
 
     // 3. Start server
     app.listen(PORT, () => {

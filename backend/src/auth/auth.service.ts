@@ -22,13 +22,22 @@ export  class AuthService{
     //1. check mail or username existe
     //2. create with repository 
     //3. generate jwt token update in useroutput and return 
-    const exist_already = await this.userrepository.find_by_identifiant(input.email)
-    if (exist_already){
+    const mail_exist = await this.userrepository.find_by_email(input.email)
+    if (mail_exist){
         throw new AppError(
-            'email already registed in user', 
+            'Email address already registered', 
             ErrorCode.AUTH_MAIL_ALREADY_EXIST,
             409,
             {email: input.email})
+    }
+
+    const username_exist = await this.userrepository.find_by_username(input.username)
+    if (username_exist){
+        throw new AppError(
+            'Username already used', 
+            ErrorCode.AUTH_USERNAME_ALREADY_EXIST,
+            409,
+            {username: input.username})
     }
 
     const newuser = await this.userrepository.create(input)
@@ -47,10 +56,10 @@ export  class AuthService{
 
     async login(input: LoginInput): Promise<AuthResult>{
         //1. find the user bye mail or username
-        const user = await this.userrepository.find_by_identifiant(input.email);
+        const user = await this.userrepository.find_by_email(input.email);
         if (!user){
             throw new AppError(
-                'Invalid credentials', 
+                'Invalid email', 
                 ErrorCode.AUTH_INVALID_CREDENTIALS,
                 401)
         }
@@ -59,7 +68,7 @@ export  class AuthService{
         const valide_password = await bcrypt.compare(input.password, user.password);
         if (!valide_password){
             throw new AppError (
-                'Invalid credentials', 
+                'Invalid password', 
                 ErrorCode.AUTH_INVALID_CREDENTIALS,
                 401)
         }
