@@ -9,6 +9,21 @@
     options: string[];
   };
 
+  type PublicGameState = {
+    gameId: string;
+    players: Record<string, { id: string; score: number; isAI?: boolean }>;
+    currentQuestionIndex: number;
+    isFinished: boolean;
+    totalQuestions: number;
+  };
+
+  type FinalScore = {
+    gameId: string;
+    players: Record<string, { id: string; score: number; isAI?: boolean }>;
+    winner: string;
+    finishedAt: number;
+  };
+
   type StartGameApiResponse = {
     success: boolean;
     message: string;
@@ -22,36 +37,27 @@
     success: boolean;
     message: string;
     data: {
-      gameresult: {
-        gameId: string;
-        players: Record<string, { id: string; score: number; isAI?: boolean }>;
-        currentQuestionIndex: number;
-        isFinished: boolean;
-        totalQuestions: number;
-      };
-      correctAnswer: string;
-      nextQuestion: PublicQuestion | null;
-      finalscore?: {
-        gameId: string;
-        players: Record<string, { id: string; score: number; isAI?: boolean }>;
-        winner: string;
-        finishedAt: number;
-      };
+      gameresult: PublicGameState;
+      correctAnswer?: string;
+      nextQuestion?: PublicQuestion | null;
+      finalscore?: FinalScore;
     } | null;
   };
 
-// $state permet -> une variable change = la page met à jour automatiquement le contenu affiché qui dépend de cette variable
-// doc officiel -> "The $state rune allows you to create reactive state, which means that your UI reacts when it changes"
   let gameId = $state<string | null>(null);
-  let currentQuestion = $state<PublicQuestion | null>(null); 
+  let currentQuestion = $state<PublicQuestion | null>(null);
   let score = $state(0);
   let isFinished = $state(false);
   let feedback = $state('');
   let error = $state('');
   let loading = $state(false);
 
+  function extractScore(players: Record<string, { score: number }>): number {
+    const values = Object.values(players);
+    return values.length > 0 ? values[0].score : 0;
+  }
+
   async function startGame() {
-    console.log('startGame clicked');
     loading = true;
     error = '';
     feedback = '';
@@ -61,20 +67,16 @@
     gameId = null;
 
     try {
-      const response = await fetch(`http://localhost:3000/game/${mode}/start`, {
-        method: 'GET'
+      const response = await fetch(`/api/game/${mode}/start`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
       });
 
       const result: StartGameApiResponse = await response.json();
-      console.log('startGame result:', result);
 
-      if (!response.ok || !result.success) {
+      if (!response.ok || !result.success || !result.data) {
         error = result?.message ?? 'Impossible de démarrer la partie.';
-        return;
-      }
-
-      if (result.data === null) {
-        error = 'En attente d\'un adversaire...';
         return;
       }
 
@@ -91,19 +93,23 @@
   async function submitAnswer(selectedAnswerIndex: number) {
     if (!gameId || !currentQuestion || isFinished) return;
 
+    const selectedOptionText = currentQuestion.options[selectedAnswerIndex];
+
     loading = true;
     error = '';
 
     try {
       const response = await fetch(
-        `http://localhost:3000/game/${mode}/${gameId}/answer?selectedAnswerIndex=${selectedAnswerIndex}`,
+        `/api/game/${mode}/${gameId}/answer`,
         {
-          method: 'GET'
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ selectedAnswerIndex })
         }
       );
 
       const result: AnswerApiResponse = await response.json();
-      console.log('submitAnswer result:', result);
 
       if (!response.ok || !result.success || !result.data) {
         error = result?.message ?? 'Erreur lors de l’envoi de la réponse.';
@@ -111,19 +117,19 @@
       }
 
       const data = result.data;
-      const isCorrect = data.correctAnswer === ''; // Empty string means correct answer
-      feedback = !isCorrect ? `Wrong answer. Correct answer: ${data.correctAnswer}` : 'Correct answer.';
-      
-      // Get current player's score (use first player for now, should store userId)
-      const playerScores = Object.values(data.gameresult.players);
-      score = playerScores.length > 0 ? playerScores[0].score : 0;
+      score = extractScore(data.gameresult.players);
       isFinished = data.gameresult.isFinished;
-      currentQuestion = data.nextQuestion;
 
-      score = result.data.score;
-      isFinished = result.data.isFinished;
-      currentQuestion = result.data.nextQuestion;
-    } 
+      if (data.finalscore) {
+        currentQuestion = null;
+        feedback = '';
+      } else {
+        const correct = data.correctAnswer ?? '';
+        const isCorrect = selectedOptionText === correct;
+        feedback = isCorrect ? 'Correct answer.' : `Wrong answer. Correct answer: ${correct}`;
+        currentQuestion = data.nextQuestion ?? null;
+      }
+    }
     catch (err) {
       console.error('submitAnswer error:', err);
       error = 'Erreur réseau pendant la réponse.';

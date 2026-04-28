@@ -1,27 +1,10 @@
 <script lang="ts">
 	import "../../app.css";
-	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 
-	async function handleGameMode(mode: "solo" | "IA" | "tournament" | "multiplayer") {
-    	try {
-    		const response = await fetch('/api/game', {
-        		method: 'POST',
-				headers: {'Content-Type': 'application/json' },
-				body: JSON.stringify({ mode })
-      		});
-			if (!response.ok) {
-				console.error("DAMMMN")
-				return;
-			}
-			const result = await response.json();
-			console.log(result);
-			await goto('/game'); // Check the backend's return
-		}
-		catch (error) {
-			console.error('Game mode page error:', error);
-    	}
-  	}
+	async function startSolo() {
+		await goto('/game?mode=solo');
+	}
 </script>
 
 <!-- Container -->
