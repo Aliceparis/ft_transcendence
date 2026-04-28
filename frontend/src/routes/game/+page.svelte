@@ -52,7 +52,8 @@
 
     try {
       const response = await fetch(`http://localhost:3000/game/${mode}/start`, {
-        method: 'GET'
+        method: 'GET',
+        credentials: 'include'
       });
 
       const result: StartGameApiResponse = await response.json();
@@ -83,7 +84,8 @@
       const response = await fetch(
         `http://localhost:3000/game/${mode}/${gameId}/answer?selectedAnswerIndex=${selectedAnswerIndex}`,
         {
-          method: 'GET'
+          method: 'GET',
+          credentials: 'include'
         }
       );
 
