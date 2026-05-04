@@ -97,10 +97,7 @@ export class UserService{
 
     async update_avatar(userid: number, file?: Express.Multer.File): Promise<UserOutput>{
         if (!file) {
-            throw new AppError(
-                'Need an avatar file',
-                ErrorCode.AVATAR_REQUIRED,
-                400);
+            throw new AppError("avatar file is required", 400);
         }
 
         const user = await this.userrepository.find_by_id(userid);

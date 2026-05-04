@@ -3,7 +3,7 @@ import {prisma} from '../lib/prisma';
 import bcrypt from 'bcrypt';
 
 export class UserRepository{
-    private toUserOutput(user: Pick<UserDB, 'id' | 'username' | 'email' | 'url' | 'createdAt' | 'score' | 'wins' | 'played' | 'friendsNb' | 'role'>): UserOutput {
+    private toUserOutput(user: Pick<UserDB, 'id' | 'username' | 'email' | 'url' | 'createdAt' | 'score' | 'wins' | 'played' | 'friendsNb' | 'status' | 'role'>): UserOutput {
         return {
             id: user.id,
             createdAt: user.createdAt,
@@ -14,11 +14,12 @@ export class UserRepository{
             wins: user.wins,
             played: user.played,
             friendsNb: user.friendsNb,
+            status: user.status,
             role: user.role
         };
     }
 
-    //1. creation a compte
+    //1. create a account
     async create(input: RegisterInput): Promise<UserOutput>{
         const hashed_password = await bcrypt.hash(input.password, 10);
         const newuser = await prisma.user.create({
@@ -65,7 +66,6 @@ export class UserRepository{
         return user
     }
 
-    //update password 
     async update_password(userid: number, new_pd: string){
         return await prisma.user.update({
             where: {id: userid},
@@ -93,8 +93,37 @@ export class UserRepository{
         return this.toUserOutput(updatedUser);
     }
 
-}
+    async increment_friends_count(userId: number): Promise<void> {
+        await prisma.user.update({
+            where: { id: userId },
+            data: {
+                friendsNb: {
+                    increment: 1
+                }
+            }
+        });
+    }
 
+    async decrement_friends_count(userId: number): Promise<void> {
+        await prisma.user.update({
+            where: { id: userId },
+            data: {
+                friendsNb: {
+                    decrement: 1
+                }
+            }
+        });
+    }
+
+    async update_status(userId: number, status: 'ONLINE' | 'OFFLINE'): Promise<void> {
+        await prisma.user.update({
+            where: { id: userId },
+            data: {
+                status
+            }
+        });
+    }
+}
 
 /**
  *  UserRepository:

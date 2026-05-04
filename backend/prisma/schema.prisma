@@ -18,6 +18,7 @@ model User {
     wins        Int?        @default(0)
     played      Int?        @default(0)
     friendsNb   Int?        @default(0)
+    status      UserStatus  @default(OFFLINE)
     role        Role        @default(USER)
     quizzes     Quiz[]
 
@@ -57,12 +58,10 @@ model Friendship {
   
   status    FriendshipStatus @default(PENDING)
   
-    user   User @relation("SentFriendships", fields: [userId], references: [id], onDelete: Cascade)
-    friend User @relation("ReceivedFriendships", fields: [friendId], references: [id], onDelete: Cascade)
+  user   User @relation("SentFriendships", fields: [userId], references: [id], onDelete: Cascade)
+  friend User @relation("ReceivedFriendships", fields: [friendId], references: [id], onDelete: Cascade)
   
   @@unique([userId, friendId])
-  
-
 }
 
 model MatchResult {
@@ -95,10 +94,14 @@ model PlayerMatch {
 enum FriendshipStatus {
   PENDING
   ACCEPTED
-  BLOCKED
 }
 
 enum Role {
     USER
     ADMIN
+}
+
+enum UserStatus {
+    ONLINE
+    OFFLINE
 }
