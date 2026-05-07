@@ -113,7 +113,7 @@ export class UserService{
             throw new AppError('avatar file is required',
                 ErrorCode.AVATAR_REQUIRED,
                 400,
-                {});
+                {userID: userid});
         }
 
         const user = await this.userrepository.find_by_id(userid);

@@ -60,6 +60,17 @@ export class FriendshipController {
         }
     };
 
+    GetFriendsById = async (req: Request, res: Response) => {
+        try {
+            const targetId = parseInt(req.params.userId);
+            
+            const result = await this.friendshipService.get_friends(targetId);
+            res.json(Apiresponse.success(result));
+        } catch (error) {
+            this.handleError(res, error, "Internal get friends error");
+        }
+    };
+
     GetPendingRequests = async (req: Request, res: Response) => {
         try {
             const result = await this.friendshipService.get_pending_requests(req.user.id);

@@ -17,6 +17,7 @@ friendshipRouter.delete('/request/:friendshipId/decline', friendshipController.D
 friendshipRouter.delete('/friend/:friendId', friendshipController.RemoveFriend);
 
 friendshipRouter.get('/friends', friendshipController.GetFriends);
+friendshipRouter.get('/friends/:userId', friendshipController.GetFriendsById);
 friendshipRouter.get('/requests/pending', friendshipController.GetPendingRequests);
 friendshipRouter.get('/requests/sent', friendshipController.GetSentRequests);
 friendshipRouter.get('/status/:userId', friendshipController.GetUserStatus);
