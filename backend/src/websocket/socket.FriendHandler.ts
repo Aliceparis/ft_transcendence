@@ -31,7 +31,7 @@ export class FriendSocketHandler{
 
         for(const F of friends){
             const friendId = String(F.userId === userId? F.friendId: F.userId);
-            await this.emitter.toUser(friendId, event, {userId});
+            await this.emitter.toUser(friendId, event, {userId, nickname: socket.data.nickname});
         }
     } 
 

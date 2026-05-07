@@ -42,9 +42,11 @@ export type FriendSocketEvents = {
 
     'friend_online':{
         userId: string;
+        nickname: string;
     };
     'friend_offline':{
         userId: string;
+        nickname: string;
     }
 }
 
