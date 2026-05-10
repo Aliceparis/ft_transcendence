@@ -1,4 +1,4 @@
-import { IGameRepository } from "src/g/game.redis.repository";
+import { IGameRepository } from "src/game/game.redis.repository";
 import { GameMode, GameUpdateResponse, Player, BaseGameState } from "./game.types";
 import { QuestionService } from "src/question/question.service";
 import { GameBaseService } from "./game.base";
@@ -43,6 +43,7 @@ export class SoloService extends GameBaseService{
     
         const response = this.buildResponseForFront(state);
         response.lastAnswerUpdate = {
+            playerId: userId,
             isCorrect: isCorrect,
             correctAnswerIndex: correctAnswerIndex,
             correctText: correctText,

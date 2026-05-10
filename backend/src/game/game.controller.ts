@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { GameService } from './game.service';
 import { AppError, ErrorCode } from 'src/error/apperror';
 import { Apiresponse } from 'src/lib/api_response';
+import { GameMode } from './game.types';
 
 export class GameController
 {
@@ -11,8 +12,18 @@ export class GameController
     start = async(req: Request, res: Response)=>
     {
         try{
+            const rawmode = req.params.mode; 
+            const mode = rawmode === 'multiplayer' ? GameMode.MULTIPLAYER
+               : rawmode === 'solo'        ? GameMode.SOLO
+               : null;
+
+            if (!mode) {
+                return res.status(400).json(
+                     Apiresponse.error('INVALID_MODE', 'Invalid game mode')
+                );
+            }
             const result = await this.gameService.startGame({
-                mode: req.params.mode as "solo" | "multiplayer",
+                mode,
                 userId: req.user!.id,
                 nickname: req.user!.id
             })
@@ -56,7 +67,7 @@ export class GameController
         try{
             const result = await this.gameService.setReady(roomId, userId, isReady);
 
-            if (!result) {
+            if (!result.allReady) {
                 return res.status(200).json(
                     Apiresponse.error(
                         "Waiting for other players",

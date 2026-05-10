@@ -1,9 +1,9 @@
 import { AppError, ErrorCode } from "src/error/apperror";
-import { IGameRepository } from "src/g/game.redis.repository";
+import { IGameRepository } from "src/game/game.redis.repository";
 import { QuestionService } from "src/question/question.service";
 import { Room } from "src/room/room.types";
 import { GameBaseService } from "./game.base";
-import { GameMode, GameUpdateResponse, Player } from "./game.types";
+import { GameMode, GameUpdateResponse, MultiGameState, Player } from "./game.types";
 
 export class LocalMultiPlayer extends GameBaseService {
     protected gamerepository: IGameRepository;
@@ -23,12 +23,9 @@ export class LocalMultiPlayer extends GameBaseService {
         const players: Record<string, Player> = {};
         
         for(const p of playerlist){
-            players[p.id] = this.initPlayers(p.id, p.nickname);
+            players[p.userId] = this.initPlayers(p.userId, p.nickname);
         }
-        const state = await this.prepareGame(players, GameMode.MULTIPLAYER);
-        (state as any).roomId = room.roomId;
-        (state as any).hostId = room.hostId;
-        (state as any).status = 'playing';
+        const state = await this.prepareGame(players, GameMode.MULTIPLAYER, {roomId: room.roomId, hostId: room.hostId});
 
         await this.gamerepository.create(state);
         return {

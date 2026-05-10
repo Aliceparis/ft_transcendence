@@ -2,7 +2,7 @@ import { emit } from "process";
 import { AuthService } from "./auth/auth.service";
 import { FriendshipRepository } from "./friendship/friendship.repository";
 import { FriendshipService } from "./friendship/friendship.service";
-import { GameService } from "./g/game.factory";
+import { GameService } from "./game/game.service";
 import { RedisGameRepository } from "./game/game.redis.repository";
 import { MatchRepository } from "./game/match/match.repository";
 import { MatchService } from "./game/match/match.service";

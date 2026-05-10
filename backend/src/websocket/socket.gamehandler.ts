@@ -1,14 +1,13 @@
-import { RedisGameRepository } from "src/g/game.redis.repository";
-import { MatchService } from "src/g/multiplayer/match/match.service";
+import { RedisGameRepository } from "src/game/game.redis.repository";
+import { MatchService } from "src/game/match/match.service";
 //import { RoomManager } from "src/room/room.manager";
 import { GameEmitter } from "./socket.emitter";
 import { Namespace, Socket } from "socket.io";
 import { Redis, RedisKeys } from "../lib/redis"
-import { GameState } from "src/g/types";
-import { stat } from "fs";
+import { GameState } from "src/game/game.types";
 import { RoomService } from "src/room/room.service";
 import { SessionService } from "src/game/session.service";
-import { Return } from "@prisma/client/runtime/library";
+import { GameService } from "src/game/game.service";
 
 export class GameSocketHandler{
     private disconnectTimers = new Map<string, ReturnType<typeof setTimeout>>();
@@ -20,7 +19,7 @@ export class GameSocketHandler{
         private matchservice: MatchService,
         private gamerepos: RedisGameRepository,
         private emitter: GameEmitter,
-        private gameService: any,
+        private gameService: GameService,
         private sessionService: SessionService,
     ){}
 
@@ -94,7 +93,7 @@ export class GameSocketHandler{
                     type: "in_room",
                     roomId: room.roomId,
                     players: Object.values(room.players).map(p=>({
-                        id: p.id,
+                        id: p.userId,
                         nickname: p.nickname,
                         isReady: p.isReady,
                     })),
@@ -116,6 +115,7 @@ export class GameSocketHandler{
                         gameId: gamestate.gameId,
                         state: this.buildPublicGameState(gamestate),
                     });
+                    break;
                 } else {
                     socket.emit('reconnect', {
                         type: "in_game",
@@ -183,6 +183,17 @@ export class GameSocketHandler{
             // Answer was processed successfully, event will be broadcasted by gameService
             socket.emit('answer_submitted', { success: true });
             
+            const gamestate = await this.gamerepos.findById(gameId);
+            if (gamestate && 'roomId' in gamestate && gamestate.roomId){
+                this.io.to(gamestate.roomId).emit('answer_result', {
+                    gameId,
+                    status: result.status,
+                    lastAnswerUpdate: result.lastAnswerUpdate,
+                    nextQuestions: result.nextQuestion,
+                    players: Object.values(result.state.player),
+                    finalScore: result.finalScore,
+                })
+            }
         } catch (error) {
             console.error('Error submitting answer:', error);
             socket.emit('error', { message: 'Error submitting answer' });

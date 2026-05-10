@@ -30,6 +30,7 @@ export interface Player{
     Totaltime: number;
     isAI?: boolean;
     joinOrder?: number;
+    nickname?: string;
 }
 
 
@@ -67,8 +68,9 @@ export interface MultiGameState extends BaseGameState {
 export type GameState = SoloGameState | MultiGameState; 
 
 //informations for front 
-export interface PLayerSnapShot{
+export interface PlayerSnapShot{
     id: string;
+    nickname?: string;
     score: number;
     status: PlayerStatus;
     isAI: boolean;
@@ -78,6 +80,7 @@ export type FinalScore = {
     winnerId: string;
     finishedAt: number;
     scores: Record<string, number>;
+    ranking: Array<{playerId: string; score: number; rank: number}>;
 }
 
 export interface GameUpdateResponse {
@@ -86,9 +89,10 @@ export interface GameUpdateResponse {
     state: {
         currentQuestionIndex: number;
         totalQuestions: number;
-        player: Record<string, PLayerSnapShot>;
+        player: Record<string, PlayerSnapShot>;
     };
     lastAnswerUpdate? :{
+        playerId: string;
         isCorrect: boolean;
         correctAnswerIndex: number;
         correctText: string;
@@ -115,9 +119,14 @@ export type MatchPlayer = {
     nickname: string;
 };
 
+export type SetReadyResult = {
+    allReady: boolean;
+    gameresponse?: GameUpdateResponse;
+};
+
 //input 
-export type StartGameParms = {
-   mode: "solo" | "multiplayer";
+export type StartGameParams = {
+   mode: GameMode.SOLO | GameMode.MULTIPLAYER;
    userId: string;
    nickname: string;
 }

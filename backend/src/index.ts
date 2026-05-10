@@ -8,7 +8,7 @@ import {createServer} from 'http';
 
 import { AuthRouter } from './auth/auth.router';
 import { UserRouter } from './User/user.router';
-import {createGameRouter} from './g/game.router';
+import {createGameRouter} from './game/game.router';
 import friendshipRouter from './friendship/friendship.router';
 import {initRedis, Redis} from './lib/redis';
 import {createSocketServer} from './lib/socket';
@@ -22,7 +22,6 @@ import { createGameServices,
 } from './container';
 import { GameSocketHandler } from './websocket/socket.gamehandler';
 import { FriendSocketHandler } from './websocket/socket.FriendHandler';
-import { sign } from 'crypto';
 import { SessionService } from './game/session.service';
 
 

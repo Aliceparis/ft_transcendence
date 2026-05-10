@@ -1,8 +1,7 @@
 import { QuestionService } from "src/question/question.service";
-import { Player, BaseGameState, GameUpdateResponse, PLayerSnapShot, FinalScore } from "./game.types";
+import { Player, BaseGameState, GameUpdateResponse, PlayerSnapShot, FinalScore, GameMode, MultiGameState, SoloGameState, GameState } from "./game.types";
 import { AppError, ErrorCode } from "src/error/apperror";
-import { error } from "console";
-import { IGameRepository } from "src/g/types";
+import { IGameRepository } from "src/game/game.redis.repository";
 
 
 export class GameBaseService
@@ -23,21 +22,41 @@ export class GameBaseService
         return player;
     }
 
-    protected async prepareGame(players: Record<string, Player>, mode: string): Promise<BaseGameState> {
+    protected async prepareGame(players: Record<string, Player>, mode: GameMode, extra?: {roomId: string, hostId: string}): Promise<GameState> {
         const questions = await this.questionService.getQuestions(10);
         const gameId = crypto.randomUUID();
-        return {
+        const base = {
             gameId,
-            mode: mode as any,
+            mode: mode,
             questions,
             players,
             currentQuestionIndex: 0,
             isFinished: false,
             startedAt: Date.now()
         }
+        if (mode === GameMode.MULTIPLAYER || mode === GameMode.TOURNAMENT){
+            if (!extra){
+                throw new AppError(
+                    'roomId and hostId required for multiplayer',
+                    ErrorCode.GAME_UNKOWN_MODE,
+                    400
+                )
+            }
+            return {
+                ...base,
+                mode,
+                roomId: extra.roomId,
+                hostId: extra.hostId,
+                status: 'playing',
+            } as MultiGameState;
+        } 
+        return {
+            ...base,
+            mode,
+        } as SoloGameState;
     }
 
-    protected async processAnswer(state: BaseGameState, selectedIndex: number, userId: string): Promise<{isCorrect: boolean; correctAnswerIndex: number, correctText: string}> {
+    protected async processAnswer(state: BaseGameState, selectedIndex: number, userId: string): Promise<{playerId: string, isCorrect: boolean; correctAnswerIndex: number, correctText: string}> {
 
         const currentQuestion = state.questions[state.currentQuestionIndex];
         if (!currentQuestion){
@@ -69,7 +88,7 @@ export class GameBaseService
                 player.score += 1;
             }
 
-            return {isCorrect, correctAnswerIndex: currentQuestion.correctAnswerIndex, correctText: currentQuestion.options[currentQuestion.correctAnswerIndex]};
+            return {playerId: userId, isCorrect, correctAnswerIndex: currentQuestion.correctAnswerIndex, correctText: currentQuestion.options[currentQuestion.correctAnswerIndex]};
     }
 
     protected advanceGame(state: BaseGameState): void {
@@ -100,7 +119,7 @@ export class GameBaseService
         }
     }
 
-    private buildPublicPlayerSnapShot(players: Record<string, Player>): Record<string, PLayerSnapShot> {
+    private buildPublicPlayerSnapShot(players: Record<string, Player>): Record<string, PlayerSnapShot> {
         return Object.fromEntries(
             Object.entries(players).map(([id, player]: [string, Player]) => [
                 id,
