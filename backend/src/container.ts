@@ -20,6 +20,7 @@ import { SessionService } from "./game/session.service";
 import { LocalMultiPlayer } from "./game/game.local";
 import { Namespace } from "socket.io";
 import { Redis } from "./lib/redis";
+import { FriendshipController } from "./friendship/friendship.controller";
 
 // repo 
 const questionrepo = new QuestionRepository();
@@ -63,11 +64,19 @@ const gameService = new GameService(
 return {multiPlayer, gameService};
 }
 
+export function createFriendshipModule(emitter: FriendEmitter){
+    const friendshipRepo = new FriendshipRepository();
 
-export function createFriendshipService(emitter: FriendEmitter): FriendshipService{
-    return new FriendshipService(
-        new FriendshipRepository(),
+    const friendshipService = new FriendshipService(
+        friendshipRepo,
         userrepo,
-        emitter,        
-    )
+        emitter
+    );
+
+    const friendshipController = new FriendshipController(friendshipService);
+
+    return {
+        friendshipService,
+        friendshipController
+    }
 }

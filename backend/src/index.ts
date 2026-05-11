@@ -9,7 +9,7 @@ import {createServer} from 'http';
 import { AuthRouter } from './auth/auth.router';
 import { UserRouter } from './User/user.router';
 import {createGameRouter} from './game/game.router';
-import friendshipRouter from './friendship/friendship.router';
+import {createFriendshipRouter} from './friendship/friendship.router';
 import {initRedis, Redis} from './lib/redis';
 import {createSocketServer} from './lib/socket';
 import {FriendEmitter, GameEmitter} from './websocket/socket.emitter';
@@ -17,8 +17,8 @@ import { createGameServices,
   roomService,
   matchService,
   gamerepo,
-  createFriendshipService,
   userrepo,
+  createFriendshipModule,
 } from './container';
 import { GameSocketHandler } from './websocket/socket.gamehandler';
 import { FriendSocketHandler } from './websocket/socket.FriendHandler';
@@ -67,16 +67,17 @@ const start = async () => {
 
     //friendsocket
     const friendemitter = new FriendEmitter(io, Redis);
-    const friendshipservice = createFriendshipService(friendemitter);
+    const {friendshipController, friendshipService} = createFriendshipModule(friendemitter);
     const friendhandler = new FriendSocketHandler(
       friendNs,
       Redis,
       friendemitter,
-      friendshipservice,
+      friendshipService,
       userrepo
     );
     friendNs.on('connection', socket=> friendhandler.onConnection(socket));
-    
+    const friendshipRouter = createFriendshipRouter(friendshipController);
+
 
     app.use('/api/auth', AuthRouter);
     app.use('/api/user', UserRouter);

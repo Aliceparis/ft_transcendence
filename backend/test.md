@@ -72,8 +72,8 @@ curl -i -k -c cookies.txt -X POST http://localhost:3000/api/auth/register \
 curl -i -k -c cookies.txt -X POST https://localhost:8888/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{
-    "username": "testuser_cycle",
-    "email": "testcycle@gmail.com",
+    "username": "testuser_cycl1",
+    "email": "1testcycl@gmail.com",
     "password": "12345678900"
   }'
 
@@ -209,3 +209,11 @@ Test avatar upload
 curl -i -k -b cookies.txt \
   -X POST http://localhost:3000/api/user/me/avatar \
   -F "avatar=@/home/ikayiban/Downloads/image.jpg"
+
+
+friendship 
+curl -k -X POST "https://localhost:8888/api/friendship/request" -b cookie0.txt \
+-H "Content-Type: application/json" \
+-d '{
+  "targetUserId": 8
+}'
