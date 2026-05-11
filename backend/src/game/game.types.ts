@@ -1,5 +1,3 @@
-
-//this type maybe need zod to protected, it comes with database
 export type Question = {
     id: number;
     question: string;
@@ -22,27 +20,106 @@ export type PlayerAnswer = {
     answeredAt?: number; // for multiplayer
 }
 
-export type Player = {
-    id: string; //playerid
+export type PlayerStatus = "playing" | "answered" | "disconnected";
+
+export interface Player{
+    id: string;
     score: number;
     answers: PlayerAnswer[];
+<<<<<<< HEAD
     status: "playing" | 'answered';
+=======
+    status: PlayerStatus;
+>>>>>>> alice
     Totaltime: number;
-
     isAI?: boolean;
+<<<<<<< HEAD
     joinOrder?: number; // to get a host for the room 
+=======
+    joinOrder?: number;
+    nickname?: string;
+>>>>>>> alice
 }
 
-export type PublicPlayer = {
-    id: string; //playerid
-    score: number;
-    isAI?: boolean;
+
+export enum GameMode {
+    SOLO = "solo",
+    AI = "ai",
+    MULTIPLAYER = "multiplayer",
+    TOURNAMENT = "tournament",  
 }
-//type input from front 
-export type StartGameParms = {
-   mode: "solo" | "multiplayer";
-   userId: string;
-   nickname: string;
+//runtime gamestate to save in redis 
+export interface BaseGameState {
+    gameId: string;
+    mode: GameMode;
+    questions: Question[];
+    players: Record<string, Player>;
+    currentQuestionIndex: number;
+    isFinished: boolean;
+    startedAt: number;
+    roomId?: string;
+    hostId?: string;
+    status?: "waiting" | "starting" | "playing" | "finished";
+}
+
+export interface SoloGameState extends BaseGameState {
+    mode: GameMode.SOLO | GameMode.AI
+}
+
+export interface MultiGameState extends BaseGameState {
+    mode: GameMode.MULTIPLAYER | GameMode.TOURNAMENT;
+    roomId: string;
+    hostId: string;
+    status: "waiting" | "starting" | "playing" | "finished";
+}
+
+export type GameState = SoloGameState | MultiGameState; 
+
+//informations for front 
+export interface PlayerSnapShot{
+    id: string;
+    nickname?: string;
+    score: number;
+    status: PlayerStatus;
+    isAI: boolean;
+}
+
+export type FinalScore = {
+    winnerId: string;
+    finishedAt: number;
+    scores: Record<string, number>;
+    ranking: Array<{playerId: string; score: number; rank: number}>;
+}
+
+export interface GameUpdateResponse {
+    gameId: string;
+    status: "playing" | "finished";
+    state: {
+        currentQuestionIndex: number;
+        totalQuestions: number;
+        player: Record<string, PlayerSnapShot>;
+    };
+    lastAnswerUpdate? :{
+        playerId: string;
+        isCorrect: boolean;
+        correctAnswerIndex: number;
+        correctText: string;
+    };
+
+    nextQuestion?: PublicQuestion | null;
+    finalScore?: FinalScore | null; 
+}
+
+
+export interface StartGameResult {
+    gameId: string;
+    question: PublicQuestion;
+}
+
+export interface StartMultiResult extends StartGameResult {
+    status: "matched" | "waiting";
+    players?: MatchPlayer[];
+    roomId?: string;
 }
 
 export type MatchPlayer = {
@@ -50,17 +127,12 @@ export type MatchPlayer = {
     nickname: string;
 };
 
-export type StartMultiResult = {
-    status: "waiting" | "matched";
-    players?: MatchPlayer[];
-    roomId?: string; 
-}
-
-export type StartGameResult = {
-    gameId: string;
-    question: PublicQuestion;
+export type SetReadyResult = {
+    allReady: boolean;
+    gameresponse?: GameUpdateResponse;
 };
 
+<<<<<<< HEAD
 export type BaseGameState = {
     gameId: string;
     questions: Question[];
@@ -121,3 +193,11 @@ export interface IGameRepository {
     update(game: GameState): Promise<void>;
     delete(gameId: string): Promise<void>;
 }
+=======
+//input 
+export type StartGameParams = {
+   mode: GameMode.SOLO | GameMode.MULTIPLAYER;
+   userId: string;
+   nickname: string;
+}
+>>>>>>> alice
