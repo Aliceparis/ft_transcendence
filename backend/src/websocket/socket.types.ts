@@ -134,6 +134,27 @@ export interface FriendSocketEvents {
     }) => void;
 }
 
-export type ChatSocketEvents ={
+export interface ChatSocketEvents {
+    'message_received': (data: {
+        messageId: string;
+        fromUserId: string;
+        content: string;
+        createdAt: number;
+    }) => void;
 
+    'message_send': (data:{
+        messageId: string;
+        toUserId: string;
+        content: string;
+        createdAt: number;
+    }) => void;
+
+    'history': (data:{
+        withUserId: string;
+        message: any[];
+    }) => void;
+
+    'error': (data: {
+        message: string;
+    }) => void;
 }

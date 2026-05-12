@@ -11,7 +11,7 @@ export class FriendshipController {
     SendFriendRequest = async (req: Request, res: Response) => {
         try {
             const input: SendFriendRequestInput = req.body;
-            const result = await this.friendshipService.send_friend_request(req.user.id, input);
+            const result = await this.friendshipService.send_friend_request(Number(req.user.id), input);
             res.json(Apiresponse.success(result, "Friend request sent"));
         } catch (error) {
             this.handleError(res, error, "Internal send friend request error");
@@ -21,7 +21,7 @@ export class FriendshipController {
     AcceptFriendRequest = async (req: Request, res: Response) => {
         try {
             const friendshipId = parseInt(req.params.friendshipId);
-            const result = await this.friendshipService.accept_friend_request(req.user.id, friendshipId);
+            const result = await this.friendshipService.accept_friend_request(Number(req.user.id), friendshipId);
             res.json(Apiresponse.success(result, "Friend request accepted"));
         } catch (error) {
             this.handleError(res, error, "Internal accept friend request error");
@@ -31,7 +31,7 @@ export class FriendshipController {
     DeclineFriendRequest = async (req: Request, res: Response) => {
         try {
             const friendshipId = parseInt(req.params.friendshipId);
-            await this.friendshipService.decline_friend_request(req.user.id, friendshipId);
+            await this.friendshipService.decline_friend_request(Number(req.user.id), friendshipId);
             res.json(Apiresponse.success(null, "Friend request declined"));
         } catch (error) {
             this.handleError(res, error, "Internal decline friend request error");
@@ -41,7 +41,7 @@ export class FriendshipController {
     RemoveFriend = async (req: Request, res: Response) => {
         try {
             const friendId = parseInt(req.params.friendId);
-            await this.friendshipService.remove_friend(req.user.id, friendId);
+            await this.friendshipService.remove_friend(Number(req.user.id), friendId);
             res.json(Apiresponse.success(null, "Friend removed"));
         } catch (error) {
             this.handleError(res, error, "Internal remove friend error");
@@ -50,7 +50,7 @@ export class FriendshipController {
 
     GetFriends = async (req: Request, res: Response) => {
         try {
-            const result = await this.friendshipService.get_friends(req.user.id);
+            const result = await this.friendshipService.get_friends(Number(req.user.id));
             res.json(Apiresponse.success(result));
         } catch (error) {
             this.handleError(res, error, "Internal get friends error");
@@ -59,7 +59,7 @@ export class FriendshipController {
 
     GetPendingRequests = async (req: Request, res: Response) => {
         try {
-            const result = await this.friendshipService.get_pending_requests(req.user.id);
+            const result = await this.friendshipService.get_pending_requests(Number(req.user.id));
             res.json(Apiresponse.success(result));
         } catch (error) {
             this.handleError(res, error, "Internal get pending requests error");
@@ -68,7 +68,7 @@ export class FriendshipController {
 
     GetSentRequests = async (req: Request, res: Response) => {
         try {
-            const result = await this.friendshipService.get_sent_requests(req.user.id);
+            const result = await this.friendshipService.get_sent_requests(Number(req.user.id));
             res.json(Apiresponse.success(result));
         } catch (error) {
             this.handleError(res, error, "Internal get sent requests error");
@@ -78,7 +78,7 @@ export class FriendshipController {
     UpdateOnlineStatus = async (req: Request, res: Response) => {
         try {
             const input: UpdateStatusInput = req.body;
-            await this.friendshipService.update_online_status(req.user.id, input.status);
+            await this.friendshipService.update_online_status(Number(req.user.id), input.status);
             res.json(Apiresponse.success(null, "Status updated"));
         } catch (error) {
             this.handleError(res, error, "Internal update status error");

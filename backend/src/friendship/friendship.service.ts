@@ -37,7 +37,7 @@ export class FriendshipService {
 
         //notification for friend
         await this.emitter.toUser(String(input.friendId), 'friend_request', {
-            fromuserId: String(userId),
+            fromUserId: String(userId),
             fromNickname: user.username,
         })
 
@@ -135,5 +135,11 @@ export class FriendshipService {
         return {
             status: user.status || 'OFFLINE'
         };
+    }
+
+    //check if one user is friend with another user
+    async areFriends(fromId: number, toUserId: number): Promise<boolean> {
+        const friendship = await this.friendshipRepository.find_friendship_between_users(fromId, toUserId);
+        return friendship?.status === 'ACCEPTED';
     }
 }

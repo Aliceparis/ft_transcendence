@@ -64,6 +64,11 @@ model Friendship {
   @@unique([userId, friendId])
 }
 
+model Message {
+    id          Int         @id @default(autoincrement())
+    createdAt   DateTime    @default(now())
+}
+
 model MatchResult {
     id        Int          @id @default(autoincrement())
     createdAt DateTime     @default(now())
