@@ -1,6 +1,6 @@
-import { AppError, ErrorCode } from "src/error/apperror";
+import { AppError, ErrorCode } from "../error/apperror";
+import { Apiresponse } from "../lib/api_response";
 import { ChatService } from "./chat.service";
-import { Apiresponse } from "src/lib/api_response";
 import { Request, Response } from "express";
 
 export class ChatController{
@@ -22,18 +22,18 @@ export class ChatController{
         try{
             const messages = await this.chatservice.getHistory(userId, withUserId, limit, before);
             return res.status(200).json(
-                Apiresponse.success(messages, 'Histroy fetch');
+                Apiresponse.success(messages, 'Histroy fetch')
             )
 
         }catch(error){
             console.error("error in chatcontroller: ", error);
             if (error instanceof AppError){
                 return res.status(error.statusCode).json(
-                    Apiresponse.error(error.code, error.message);
+                    Apiresponse.error(error.code, error.message)
                 )
             }
             return res.status(500).json(
-                Apiresponse.error(ErrorCode.INTERNAL_ERROR, "Internal chat error");
+                Apiresponse.error(ErrorCode.INTERNAL_ERROR, "Internal chat error")
             )
         }
     }

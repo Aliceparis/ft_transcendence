@@ -2,7 +2,7 @@ import { AuthController } from "./auth.controller";
 import { Router } from "express";
 import { valideRequest } from "../middleware/zod_check";
 import { Register_Input, Login_Input } from "@shared/user.schema"
-import { container } from "src/container";
+import { container } from "../container";
 
 const router = Router();
 const authController = new AuthController(container.authService);

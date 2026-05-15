@@ -1,8 +1,8 @@
-import {  FinalScore, GameUpdateResponse, MatchPlayer, PlayerSnapShot, PublicQuestion, StartGameResult } from "src/game/game.types";
 import {SendFriendRequestInput} from "@shared/friendship.schema";
-import { QueuePlayer } from "src/game/match/match.types";
 import { string } from "zod/v4-mini";
-import { RoomStatus } from "src/room/room.types";
+import { RoomStatus } from "../room/room.types";
+import { GameUpdateResponse, MatchPlayer, PlayerSnapShot } from "../game/game.types";
+import { PublicQuestion } from "@shared/game.schema";
 
 export type RoomPlayerInfo = {
     id: string;
@@ -76,7 +76,7 @@ export type AnswerSubmitPayload = {
 
 export type SocketEvents = Record<string, (data: any) => void>;
 
-export interface ServerToClientEvents {
+export type ServerToClientEvents = {
     //match making before start multiplayer game 
     'matched': (data: MatchPayload) => void;
 
@@ -97,7 +97,7 @@ export interface ServerToClientEvents {
     }) => void;
 }
 
-export interface ClientToServerEvents {
+export type ClientToServerEvents = {
     submit_answer:(data: {
         gameId: string;
         answerIndex: number;
@@ -112,7 +112,7 @@ export interface ClientToServerEvents {
 
 
 
-export interface FriendSocketEvents {
+export type FriendSocketEvents = {
     'friend_request':(data: {
         fromUserId: string;
         fromNickname: string;
@@ -134,7 +134,7 @@ export interface FriendSocketEvents {
     }) => void;
 }
 
-export interface ChatSocketEvents {
+export type ChatSocketEvents ={
     'message_received': (data: {
         messageId: string;
         fromUserId: string;

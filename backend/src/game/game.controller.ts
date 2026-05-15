@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import { GameService } from './game.service';
-import { AppError, ErrorCode } from 'src/error/apperror';
-import { Apiresponse } from 'src/lib/api_response';
 import { GameMode } from './game.types';
+import { Apiresponse } from '../lib/api_response';
+import { AppError, ErrorCode } from '../error/apperror';
 
 export class GameController
 {
@@ -26,7 +26,7 @@ export class GameController
             const result = await this.gameService.startGame({
                 mode,
                 userId: req.user!.id,
-                nickname: req.user!.nickname,
+                nickname: req.user!.username,
             })
             if (!result) {
                 return res.status(202).json(

@@ -1,8 +1,8 @@
-import { IGameRepository } from "src/game/game.redis.repository";
 import { GameMode, GameUpdateResponse, Player, BaseGameState } from "./game.types";
-import { QuestionService } from "src/question/question.service";
 import { GameBaseService } from "./game.base";
-import { AppError, ErrorCode } from "src/error/apperror";
+import { IGameRepository } from "./game.redis.repository";
+import { QuestionService } from "../question/question.service";
+import { AppError, ErrorCode } from "../error/apperror";
 
 
 export class SoloService extends GameBaseService{

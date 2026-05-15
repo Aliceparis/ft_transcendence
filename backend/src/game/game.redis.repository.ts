@@ -1,3 +1,4 @@
+import { Redis, RedisKeys } from '../lib/redis';
 import { GameState } from './game.types';
 
 export interface IGameRepository {
@@ -7,8 +8,6 @@ export interface IGameRepository {
     update(game: GameState): Promise<void>;
     delete(gameId: string): Promise<void>;
 }
-
-import { Redis, RedisKeys } from 'src/lib/redis';
 
 export class RedisGameRepository implements IGameRepository
 {

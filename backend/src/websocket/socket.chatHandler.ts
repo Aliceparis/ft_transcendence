@@ -1,7 +1,7 @@
 import { Namespace, Socket } from "socket.io";
 import { ChatSocketEvents } from "./socket.types";
-import { ChatService } from "src/chat/chat.service";
-import { AppError } from "src/error/apperror";
+import { ChatService } from "../chat/chat.service";
+import { AppError } from "../error/apperror";
 
 
 type chatNamespace = Namespace<Record<string, never>, ChatSocketEvents>;
@@ -43,6 +43,8 @@ export class ChatSocketHandler{
         try{
             const message = await this.chatservice.getHistory(userId, data.withUserId, data.limit, data.before);
             socket.emit('history', {withUserId: data.withUserId, message})
+        }catch(error){
+            socket.emit('error', {message: error instanceof AppError? error.message : "failed to getHistory socket"});
         }
     }
 

@@ -7,7 +7,7 @@ export const valideRequest = (schema: ZodSchema) => {
         if (!result.success){
             return res.status(400).json({errors: result.error.flatten()})
         }
-        req.valideBody = result.data
+        req.validatedBody = result.data
         next()
     }
 }

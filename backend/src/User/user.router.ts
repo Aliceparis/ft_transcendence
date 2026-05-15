@@ -1,8 +1,8 @@
-import { verifyToken } from "src/middleware/verify_token";
 import {Router} from 'express'
 import { UserController } from "./user.controller";
 import { handleAvatarUpload } from "../middleware/avatar_upload";
-import { container } from "src/container";
+import { verifyToken } from '../middleware/verify_token';
+import { container } from '../container';
 
 const router = Router();
 const usercontroller = new UserController(container.userService);

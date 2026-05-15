@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { ChatController } from "./chat.controller";
-import { verifyToken } from "src/middleware/verify_token";
+import { verifyToken } from "../middleware/verify_token";
 
 export function createChatRouter(controller: ChatController): Router{
     const router = Router();

@@ -1,9 +1,9 @@
 import { Namespace, Socket } from "socket.io";
 import { FriendEmitter } from "./socket.emitter";
-import { Redis, RedisKeys } from "src/lib/redis";
-import { FriendshipService } from "src/friendship/friendship.service";
-import { UserRepository } from "src/User/user.repository";
 import { FriendSocketEvents } from "./socket.types";
+import { Redis, RedisKeys } from "../lib/redis";
+import { FriendshipService } from "../friendship/friendship.service";
+import { UserRepository } from "../User/user.repository";
 
 type friendNamespace = Namespace<FriendSocketEvents, FriendSocketEvents>;
 type friendSocket = Socket<FriendSocketEvents, FriendSocketEvents>;

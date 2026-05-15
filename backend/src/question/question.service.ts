@@ -1,7 +1,7 @@
-import { Question as PrismaQuestion } from '@prisma/client';
-import { PublicQuestion, Question } from "game/game.types";
+import { Question as PrismaQuestion, Question } from '@prisma/client';
 import { QuestionRepository } from "./question.repository";
-import { AppError, ErrorCode } from 'src/error/apperror';
+import { AppError, ErrorCode } from '../error/apperror';
+import { PublicQuestion } from '@shared/game.schema';
 
 
 export class QuestionService{

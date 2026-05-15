@@ -1,9 +1,7 @@
-import { FriendshipRepository } from "src/friendship/friendship.repository";
-import { FriendshipService } from "src/friendship/friendship.service";
-import { RoomService } from "src/room/room.service";
-import { ChatEmitter } from "src/websocket/socket.emitter";
+import { AppError, ErrorCode } from "../error/apperror";
+import { FriendshipService } from "../friendship/friendship.service";
+import { ChatEmitter } from "../websocket/socket.emitter";
 import { ChatRepository } from "./chat.repository";
-import { AppError, ErrorCode } from "src/error/apperror";
 import { ErrorReply } from "redis";
 
 export class ChatService{
@@ -41,7 +39,7 @@ export class ChatService{
     }
 
     async getHistory(userId: string, withUserId: string, limite= 50, before?: Data){
-        const areFriends = await this.friendservice.areFriends(userId, withUserId);
+        const areFriends = await this.friendservice.areFriends(Number(userId), withUserId);
         if (!areFriends){
             throw new AppError('Not friends', ErrorCode.FRIEND_NOT_FOUND, 403);
         }

@@ -25,7 +25,6 @@ import { ChatEmitter, FriendEmitter, GameEmitter } from "./websocket/socket.emit
 import { FriendSocketHandler } from "./websocket/socket.FriendHandler";
 import { GameSocketHandler } from "./websocket/socket.gamehandler";
 import { Redis } from "./lib/redis";
-import { userrepo } from "./c";
 import { ChatController } from "./chat/chat.controller";
 import { AuthRouter } from "./auth/auth.router";
 import { UserRouter } from "./User/user.router";
@@ -38,45 +37,45 @@ import { createChatRouter } from "./chat/chat.router";
 export class Container{
     private static instance: Container;
     //repo
-    public questionRepo: QuestionRepository;
-    public userRepo: UserRepository;
-    public matchRepo: MatchRepository;
-    public roomRepo: RoomRepository;
-    public gameRepo: RedisGameRepository;
-    public friendRepo: FriendshipRepository;
-    public chatRepo: ChatRepository;
+    public questionRepo!: QuestionRepository;
+    public userRepo!: UserRepository;
+    public matchRepo!: MatchRepository;
+    public roomRepo!: RoomRepository;
+    public gameRepo!: RedisGameRepository;
+    public friendRepo!: FriendshipRepository;
+    public chatRepo!: ChatRepository;
 
     //service 
-    public questionService: QuestionService;
-    public userService: UserService;
-    public authService: AuthService;
-    public matchService: MatchService;
-    public roomService: RoomService;
-    public soloService: SoloService;
-    public localMultiPlayer: LocalMultiPlayer;
-    public multiplayerFacade: MultiPlayerFacade;
-    public gameService: GameService;
-    public sessionService: SessionService;
-    public friendService: FriendshipService;
-    public chatService: ChatService; 
+    public questionService!: QuestionService;
+    public userService!: UserService;
+    public authService!: AuthService;
+    public matchService!: MatchService;
+    public roomService!: RoomService;
+    public soloService!: SoloService;
+    public localMultiPlayer!: LocalMultiPlayer;
+    public multiplayerFacade!: MultiPlayerFacade;
+    public gameService!: GameService;
+    public sessionService!: SessionService;
+    public friendService!: FriendshipService;
+    public chatService!: ChatService; 
 
     //controller
-    public friendController: FriendshipController;
-    public chatController: ChatController;
+    public friendController!: FriendshipController;
+    public chatController!: ChatController;
 
     //socket emitter
-    public gameEmitter: GameEmitter;
-    public friendEmitter: FriendEmitter;
-    public chatEmitter: ChatEmitter;
+    public gameEmitter!: GameEmitter;
+    public friendEmitter!: FriendEmitter;
+    public chatEmitter!: ChatEmitter;
 
     //socket handler
-    public gameSocketHandler: GameSocketHandler;
-    public friendSocketHandler: FriendSocketHandler;
-    public chatSocketHandler: ChatSocketHandler;
+    public gameSocketHandler!: GameSocketHandler;
+    public friendSocketHandler!: FriendSocketHandler;
+    public chatSocketHandler!: ChatSocketHandler;
 
     //router
-    public authRouter: typeof AuthRouter;
-    public userRouter: typeof UserRouter;
+    public authRouter!: typeof AuthRouter;
+    public userRouter!: typeof UserRouter;
     public gameRouter: any;
     public friendRouter: any;
     public chatRouter: any;
@@ -98,7 +97,7 @@ export class Container{
         this.roomRepo = new RoomRepository();
         this.gameRepo = new RedisGameRepository();
         this.friendRepo = new FriendshipRepository();
-        this.chatRepo = new ChatRepository();
+        //this.chatRepo = new ChatRepository();
 
         //initialise services without dependance
         this.questionService = new QuestionService(this.questionRepo);
@@ -141,19 +140,19 @@ export class Container{
         this.friendController = new FriendshipController(this.friendService);
 
         //chat 
-        this.chatService = new ChatService(
-            this.chatEmitter,
-            this.friendService,
-            this.chatRepo
-        );
-        this.chatController = new ChatController(this.chatService);
+        //this.chatService = new ChatService(
+        //    this.chatEmitter,
+        //    this.friendService,
+        //    this.chatRepo
+        //);
+        //this.chatController = new ChatController(this.chatService);
 
         //router
         this.authRouter = AuthRouter;
         this.userRouter = UserRouter;
         this.gameRouter = createGameRouter(this.gameService);
         this.friendRouter = createFriendshipRouter(this.friendController);
-        this.chatRouter = createChatRouter(this.chatController);
+        //this.chatRouter = createChatRouter(this.chatController);
 
         //sockethandler
         this.gameSocketHandler = new GameSocketHandler(
@@ -175,10 +174,10 @@ export class Container{
             this.userRepo
         );
 
-        this.chatSocketHandler = new ChatSocketHandler(
-            chatNs,
-            this.chatService
-        )
+        //this.chatSocketHandler = new ChatSocketHandler(
+        //    chatNs,
+        //    this.chatService
+        //)
     }
 }
 export const container = Container.getInstance();

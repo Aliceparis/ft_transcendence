@@ -5,8 +5,9 @@ import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import cookie from 'cookie';
-import { AppError, ErrorCode } from "src/error/apperror";
-import { ChatSocketEvents, ClientToServerEvents, FriendSocketEvents, ServerToClientEvents } from "src/websocket/socket.types";
+import { AppError, ErrorCode } from "../error/apperror";
+import { ChatSocketEvents, ClientToServerEvents, FriendSocketEvents, ServerToClientEvents } from "../websocket/socket.types";
+import { UserPayload } from "../types/express";
 dotenv.config();
 
 
@@ -22,7 +23,7 @@ export function authMiddleware(socket: any, next: any) {
         if (!token){
             return next(new AppError('Unauthorized token in socket', ErrorCode.AUTH_UNAUTHORIZED));
         }
-        const payload = jwt.verify(token, process.env.JWT_SECRET);
+        const payload = jwt.verify(token, process.env.JWT_SECRET!) as UserPayload;
         socket.data.userId = payload.id;
         socket.data.nickname = payload.username;
         next();

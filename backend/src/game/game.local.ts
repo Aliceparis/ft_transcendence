@@ -1,8 +1,8 @@
-import { AppError, ErrorCode } from "src/error/apperror";
-import { IGameRepository } from "src/game/game.redis.repository";
-import { QuestionService } from "src/question/question.service";
-import { Room } from "src/room/room.types";
+import { AppError, ErrorCode } from "../error/apperror";
+import { QuestionService } from "../question/question.service";
+import { Room } from "../room/room.types";
 import { GameBaseService } from "./game.base";
+import { IGameRepository } from "./game.redis.repository";
 import { BaseGameState, GameMode, GameUpdateResponse, MultiGameState, Player } from "./game.types";
 
 export class LocalMultiPlayer extends GameBaseService {
