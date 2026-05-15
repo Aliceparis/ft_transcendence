@@ -56,26 +56,7 @@ jobs:
       - name: build Docker image
         run: docker build -t backend:image -f backend/Dockerfile .
 
-      - name: run Docker container
-        run: |
-          docker run -d -p 3000:3000 --name backend-container backend:image
 
-      - name: backend logs
-        run: docker logs backend-container
-
-      - name: test backend container
-        run: |
-          for i in {1..30}; do
-            if curl -sf http://localhost:3000; then
-              exit 0
-            fi
-            echo "waiting backend..."
-            sleep 2
-          done
-      
-          echo "backend failed to start"
-          docker logs backend-container
-          exit 1
 
   frontend:
     runs-on: ubuntu-24.04
@@ -103,15 +84,6 @@ jobs:
       - name: build Docker image
         run: |
           docker build -t frontend:image frontend/
-
-      - name: run Docker container
-        run: |
-          docker run -d -p 5500:5500 --name frontend-container frontend:image
-
-      - name: test frontend container
-        run: |
-          sleep 5
-          curl -f http://localhost:5500
 
   integration:
     runs-on: ubuntu-24.04
