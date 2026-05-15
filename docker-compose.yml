@@ -29,7 +29,7 @@ services:
       context: .
       dockerfile: backend/Dockerfile
     volumes:
-        - ./backend:/app/backend
+        - ./backend:/app
         - ./shared:/app/shared
         - ./backend/uploads:/app/uploads
     container_name: backend
