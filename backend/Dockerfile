@@ -20,14 +20,13 @@ RUN apt-get update \
 WORKDIR /app
 
 COPY backend/package*.json ./
-RUN npm install
+RUN npm install --include=dev
 
 
 COPY backend/ .
 COPY shared/ ./shared/
 ENV PATH="/app/node_modules/.bin:$PATH"
 
-RUN ls /app/node_modules/.bin/ts-node && echo "ts-node found" || echo "ts-node NOT found"
 RUN npx prisma generate --schema=./prisma/schema.prisma
 
 #RUN npm run build
