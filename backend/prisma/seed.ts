@@ -35,6 +35,9 @@ interface Quiz
     questions:  Question[];
 }
 
+const result = await prisma.$queryRaw`SELECT current_user, current_database();`
+console.log(result)
+
 async function main(): Promise<void> {
     const adminEmail = process.env.ADMIN_EMAIL;
     const adminPassword = process.env.ADMIN_PASSWORD;
