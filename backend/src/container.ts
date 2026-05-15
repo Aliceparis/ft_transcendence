@@ -26,8 +26,8 @@ import { FriendSocketHandler } from "./websocket/socket.FriendHandler";
 import { GameSocketHandler } from "./websocket/socket.gamehandler";
 import { Redis } from "./lib/redis";
 import { ChatController } from "./chat/chat.controller";
-import { AuthRouter } from "./auth/auth.router";
-import { UserRouter } from "./User/user.router";
+import { createAuthRouter } from "./auth/auth.router";
+import { createUserRouter } from "./User/user.router";
 import { AnyTlsaRecord } from "dns";
 import { createGameRouter } from "./game/game.router";
 import { createFriendshipRouter } from "./friendship/friendship.router";
@@ -74,8 +74,8 @@ export class Container{
     public chatSocketHandler!: ChatSocketHandler;
 
     //router
-    public authRouter!: typeof AuthRouter;
-    public userRouter!: typeof UserRouter;
+    public authRouter!: Router;
+    public userRouter!: Router;
     public gameRouter: any;
     public friendRouter: any;
     public chatRouter: any;
@@ -128,7 +128,8 @@ export class Container{
         this.gameService = new GameService(
             this.soloService,
             this.multiplayerFacade,
-            this.gameRepo
+            this.gameRepo,
+            this.questionService
         )
         
         //friendshipservice
@@ -148,8 +149,8 @@ export class Container{
         //this.chatController = new ChatController(this.chatService);
 
         //router
-        this.authRouter = AuthRouter;
-        this.userRouter = UserRouter;
+        this.authRouter = createAuthRouter(this.authService);
+        this.userRouter = createUserRouter(this.userService);
         this.gameRouter = createGameRouter(this.gameService);
         this.friendRouter = createFriendshipRouter(this.friendController);
         //this.chatRouter = createChatRouter(this.chatController);

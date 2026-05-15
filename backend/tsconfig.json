@@ -4,7 +4,7 @@
     "module": "commonjs",
     "lib": ["ES2020", "dom"],
     "outDir": "./dist",
-    "rootDir": "..", 
+    "rootDir": ".", 
     //need to active this 3 to check types
     "strict": true,
     "noImplicitAny": true,
@@ -13,7 +13,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "baseUrl": "..",         // 根目录作为 baseUrl
+    "baseUrl": ".",         // 根目录作为 baseUrl
     "paths": {
       "@shared/*": ["shared/*"],  // 给 shared 目录一个别名
     },
@@ -22,6 +22,6 @@
     "src/**/*", 
     "prisma/**/*.ts",
     "src/types/**/*.d.ts",
-    "../shared"],
+    "shared/**/*"],
   "exclude": ["node_modules", "dist", "prisma"]
 }

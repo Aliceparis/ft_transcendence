@@ -38,7 +38,7 @@ export class MatchRepository{
         if (newQueue.length > 0){
             await Redis.rPush(
                 key,
-                ...newQueue.map(p=>JSON.stringify(p))
+                newQueue.map(p=>JSON.stringify(p))
             )
         }
     }

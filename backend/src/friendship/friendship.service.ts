@@ -34,7 +34,6 @@ export class FriendshipService {
         }
 
         const result = await this.friendshipRepository.create_friend_request(userId, input.friendId);
-
         //notification for friend
         await this.emitter.toUser(String(input.friendId), 'friend_request', {
             fromUserId: String(userId),
@@ -113,6 +112,14 @@ export class FriendshipService {
 
     async get_friends(userId: number): Promise<FriendshipOutput[]> {
         return await this.friendshipRepository.get_accepted_friendships(userId);
+    }
+
+	async get_friends_for_friend(username: string): Promise<FriendshipOutput[]> {
+        const user = await this.userRepository.findByUsername(username); 
+        if (!user) {
+            throw new AppError("User not found", ErrorCode.USER_NOT_FOUND, 404);
+        }
+        return await this.friendshipRepository.get_accepted_friendships(user.id);
     }
 
     async get_pending_requests(userId: number): Promise<FriendshipOutput[]> {

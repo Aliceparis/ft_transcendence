@@ -23,6 +23,13 @@ export class GameController
                 );
             }
 
+            const rawCategory = req.body?.category;
+            const category = typeof rawCategory === 'string' && rawCategory.trim().length > 0
+                ? rawCategory.trim()
+                : undefined;
+            const rawSize = req.body?.size;
+            const size = rawSize !== undefined ? Number(rawSize) : undefined;
+
             const result = await this.gameService.startGame({
                 mode,
                 userId: req.user!.id,
@@ -58,6 +65,19 @@ export class GameController
             return res.status(500).json(
                 Apiresponse.error("INTERNAL_ERROR", "Internal start game")
             )
+        }
+    }
+
+    categories = async(_req: Request, res: Response) => {
+        try {
+            const categories = await this.gameService.listCategories();
+            return res.status(200).json(Apiresponse.success(categories, "Categories list"));
+        } catch(error) {
+            console.error(error);
+            if (error instanceof AppError) {
+                return res.status(error.statusCode).json(Apiresponse.error(error.code, error.message));
+            }
+            return res.status(500).json(Apiresponse.error("INTERNAL_ERROR", "Internal categories list"));
         }
     }
 

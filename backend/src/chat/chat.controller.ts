@@ -10,15 +10,8 @@ export class ChatController{
 
     getHistory = async(req: Request, res: Response) => {
         const userId = req.user!.id;
-        const withUserId = req.params.withUserId;
-        const limit = req.query.limit ? Number(req.query.limit) : 50;
-        const before = req.query.before? new Date(req.query.before as string) : undefined;
+        const {withUserId, limit, before} = req.validatedBody;
 
-        if (!withUserId){
-            return res.status(400).json(
-                Apiresponse.error(ErrorCode.INVALID_USER_ID, 'invalide userId')
-            )
-        }
         try{
             const messages = await this.chatservice.getHistory(userId, withUserId, limit, before);
             return res.status(200).json(

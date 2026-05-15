@@ -1,18 +1,19 @@
 <script lang="ts">
 	import "../app.css";
 	import { page } from '$app/state';
-	import { goto } from '$app/navigation';
-	import { invalidateAll } from '$app/navigation';
 	import { toast } from '$lib/toast.svelte'
 	import { showToast } from '$lib/toast.svelte'
 	import { onMount } from 'svelte'
 	import { connectWS } from '$lib/websocket/friendship'
+	import type { Socket } from "socket.io-client";
 
 	let props = $props();
-	let socket;
+	let socket: Socket | null = null;
 
 	onMount(() => {
-		socket = connectWS();
+		if (props.data.connected) {
+			socket = connectWS();
+		}
 	});
 
 	async function handleLogout() {
@@ -26,10 +27,8 @@
 				console.error('fetch error in the layout logout section');
 				return;
 			}
-			// Redirect user after successful logout.
-			await goto('/');
-			await invalidateAll();
-			showToast("You are now disconnected, see you soon.");
+			socket?.disconnect();
+			window.location.href='/?logout=true';
 		}
 		catch (error){
 			console.error('Exception thrown in the handleLogout function: ', error);
@@ -79,20 +78,20 @@
 					{:else if page.url.pathname === '/login'}
 						<a href="/" class="block text-center py-2 text-sm text-pink-500 hover:text-blue-500 focus:text-blue-500 focus:outline-hidden">Sign Up</a>
 					{:else}
-						<a href="/register" class="block text-center py-2 text-sm text-pink-500 hover:text-blue-500 focus:text-blue-500 focus:outline-hidden">Sign Up</a>
+						<a href="/" class="block text-center py-2 text-sm text-pink-500 hover:text-blue-500 focus:text-blue-500 focus:outline-hidden">Sign Up</a>
 						<a href="/login" class="block text-center py-2 text-sm text-pink-500 hover:text-blue-500 focus:text-blue-500 focus:outline-hidden">Sign In</a>
 					{/if}
 				{:else}
 					{#if page.url.pathname === '/modes'}
 						<a href="/profile" class="block text-center py-2 text-sm text-pink-500 hover:text-blue-500 focus:text-blue-500 focus:outline-hidden">Profile</a>
-						<button onclick={handleLogout} class="block cursor-pointer w-full py-2 text-center text-sm text-pink-500 hover:text-blue-500 focus:bg-white/5 focus:text-blue-500 focus:outline-hidden">Logout</button>
+						<button onclick={() => handleLogout()} class="block cursor-pointer w-full py-2 text-center text-sm text-pink-500 hover:text-blue-500 focus:bg-white/5 focus:text-blue-500 focus:outline-hidden">Logout</button>
 					{:else if page.url.pathname === '/profile'}
 						<a href="/modes" class="block text-center py-2 text-sm text-pink-500 hover:text-blue-500 focus:text-blue-500 focus:outline-hidden">Game</a>
-						<button onclick={handleLogout} class="block cursor-pointer w-full py-2 text-center text-sm text-pink-500 hover:text-blue-500 focus:bg-white/5 focus:text-blue-500 focus:outline-hidden">Logout</button>
+						<button onclick={() => handleLogout()} class="block cursor-pointer w-full py-2 text-center text-sm text-pink-500 hover:text-blue-500 focus:bg-white/5 focus:text-blue-500 focus:outline-hidden">Logout</button>
 					{:else}
 						<a href="/modes" class="block text-center py-2 text-sm text-pink-500 hover:text-blue-500 focus:text-blue-500 focus:outline-hidden">Game</a>
 						<a href="/profile" class="block text-center py-2 text-sm text-pink-500 hover:text-blue-500 focus:text-blue-500 focus:outline-hidden">Profile</a>
-						<button onclick={handleLogout} class="block cursor-pointer w-full py-2 text-center text-sm text-pink-500 hover:text-blue-500 focus:bg-white/5 focus:text-blue-500 focus:outline-hidden">Logout</button>
+						<button onclick={() => handleLogout()} class="block cursor-pointer w-full py-2 text-center text-sm text-pink-500 hover:text-blue-500 focus:bg-white/5 focus:text-blue-500 focus:outline-hidden">Logout</button>
 					{/if}
 				{/if}
 			</div>

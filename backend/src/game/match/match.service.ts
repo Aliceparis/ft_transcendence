@@ -2,7 +2,7 @@ import { MatchRepository } from "./match.repository";
 import { JoinQueueParams, MatchResult, MathQueueResult, QueuePlayer } from "./match.types";
 import { randomUUID } from "crypto";
 import { GameMode, MatchPlayer } from "../game.types";
-import { AppError, ErrorCode } from "backend/src/error/apperror";
+import { AppError, ErrorCode } from "../../error/apperror";
 
 export class    MatchService{
     constructor(private matchrepository: MatchRepository){}
@@ -10,10 +10,7 @@ export class    MatchService{
     async joinQueue(params: JoinQueueParams): Promise<MathQueueResult>{
         const queue = await this.matchrepository.getqueue(params.mode);
         const exist = queue.find(q => q.userId === params.userId);
-        if (exist) throw new AppError(
-            'Player already in queue',
-            ErrorCode.MATCH_PLAYER_EXIST,
-        )
+        if (exist) return { status: "in queue", position: queue.indexOf(exist) + 1 };
         await this.matchrepository.enqueue(params.mode, {
             userId: params.userId,
             nickname: params.nickname,
@@ -26,17 +23,16 @@ export class    MatchService{
         }
     }
 
-    async matchPlayers(mode: GameMode): Promise<MatchResult | null>{
+    async matchPlayers(mode: GameMode, size?: number): Promise<MatchResult | null>{
         const queue = await this.matchrepository.getqueue(mode);
-        const maxplayers = this.getmaxplayersfrommode(mode);
+        const maxplayers = size ?? this.getmaxplayersfrommode(mode);
 
         if (!maxplayers) throw new AppError(
                     'Game mode unkown',
                     ErrorCode.GAME_UNKOWN_MODE,
                 )
-        // recupere la queue dans repo
-        if (queue.length < maxplayers) //need a systeme to sleep and wait the next time? 
-            return null; // Not enough players
+        if (queue.length < maxplayers)
+            return null;
         const matchplayers: MatchPlayer[] = queue.slice(0, maxplayers)
                                                 .map(({userId, nickname})=> ({
                                                     userId,
