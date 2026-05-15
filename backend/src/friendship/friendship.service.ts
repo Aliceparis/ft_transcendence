@@ -1,6 +1,6 @@
 import { FriendshipRepository } from './friendship.repository';
 import { UserRepository } from '../User/user.repository';
-import type { FriendshipOutput, SendFriendRequestInput, FriendshipStatus as FriendshipStatusType } from '@shared/friendship.schema';
+import type { FriendshipOutput, SendFriendRequestInput,  } from '@shared/friendship.schema';
 import { FriendEmitter } from '../websocket/socket.emitter';
 import { AppError, ErrorCode } from '../error/apperror';
 

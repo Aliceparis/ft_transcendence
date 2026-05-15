@@ -32,6 +32,7 @@ import { AnyTlsaRecord } from "dns";
 import { createGameRouter } from "./game/game.router";
 import { createFriendshipRouter } from "./friendship/friendship.router";
 import { createChatRouter } from "./chat/chat.router";
+import { Router } from "express";
 
 
 export class Container{

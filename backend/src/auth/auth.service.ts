@@ -92,10 +92,11 @@ export  class AuthService{
                 username: user.username,
                 email: user.email,
                 url: user.url,
+                score: user.score,
                 wins: user.wins,
-                losses: user.losses,
                 friendsNb: user.friendsNb,
-                status: 'ONLINE'
+                status: 'ONLINE',
+                createdAt: user.createdAt
             }
         }
     }

@@ -1,14 +1,15 @@
-import { Question as PrismaQuestion, Question } from '@prisma/client';
+import { PrismaQuestion, Question } from '@prisma/client';
 import { QuestionRepository } from "./question.repository";
 import { AppError, ErrorCode } from '../error/apperror';
 import { PublicQuestion } from '@shared/game.schema';
+import { GameQuestion } from '../game/game.types';
 
 
 export class QuestionService{
     private availableQuizIds: number[] = [];
     constructor(private  repo: QuestionRepository){}
 
-    async getQuestions(total: number = 10, category?: string): Promise<Question[]> {
+    async getQuestions(total: number = 10, category?: string): Promise<GameQuestion[]> {
     const allIds = category
         ? await this.repo.get_QuizIds_byCategory(category)
         : await this.repo.get_all_QuizIds();
@@ -22,9 +23,16 @@ export class QuestionService{
         'Quiz not found',
          ErrorCode.QUESTION_NOT_FOUND);
 
-    return questions
-      .sort(() => Math.random() - 0.5)
-      .slice(0, total);
+    return questions.map((q: PrismaQuestion) => {
+        const shuffledOptions = [...q.options].sort(() => Math.random() - 0.5);
+        const correctAnswerIndex = shuffledOptions.findIndex(opt => opt === q.answer);
+        return {
+            id: q.id,
+            question: q.text,
+            options: shuffledOptions,
+            correctAnswerIndex: correctAnswerIndex,
+        };
+    });
   }
 
     async getCategories(): Promise<string[]>{

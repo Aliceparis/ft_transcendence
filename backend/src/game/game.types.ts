@@ -1,4 +1,4 @@
-export type Question = {
+export type GameQuestion = {
     id: number;
     question: string;
     options: string[];
@@ -44,7 +44,7 @@ export enum GameMode {
 export interface BaseGameState {
     gameId: string;
     mode: GameMode;
-    questions: Question[];
+    questions: GameQuestion[];
     players: Record<string, Player>;
     currentQuestionIndex: number;
     isFinished: boolean;
