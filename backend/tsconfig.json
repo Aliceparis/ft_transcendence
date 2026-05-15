@@ -17,10 +17,11 @@
     "paths": {
       "@shared/*": ["./shared/*"],  // 给 shared 目录一个别名
     },
-    "types": ["node", "express", "cookie-parser"]
+    // "types": ["node", "express", "cookie-parser"]
   },
   "include": [
-    "src/**/*", 
+    "src/**/*",
+	"shared/**/*",
     "prisma/**/*.ts",
     "src/types/**/*.d.ts"],
   "exclude": ["node_modules", "dist", "prisma"]
