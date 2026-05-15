@@ -24,7 +24,7 @@ export class ChatService{
 
         //tell toUserId a message received
         await this.emitter.toUser(String(toUserId), 'message_received', {
-            messageId: message.id,
+            messageId: String(message.id),
             fromUserId: String(fromId),
             content,
             createdAt: message.createdAt,
@@ -45,7 +45,9 @@ export class ChatService{
         return await this.chatrepo.markAsRead(fromUserId, userId);
     }
 
-    
+    async getUnreadCount(userId: number) {
+        return this.chatrepo.getUnreadCount(userId);
+    }
 }
 
 

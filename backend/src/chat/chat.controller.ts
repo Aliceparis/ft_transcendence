@@ -13,7 +13,7 @@ export class ChatController{
         const {withUserId, limit, before} = req.validatedBody;
 
         try{
-            const messages = await this.chatservice.getHistory(userId, withUserId, limit, before);
+            const messages = await this.chatservice.getHistory(Number(userId), withUserId, limit, before);
             return res.status(200).json(
                 Apiresponse.success(messages, 'Histroy fetch')
             )
@@ -27,6 +27,28 @@ export class ChatController{
             }
             return res.status(500).json(
                 Apiresponse.error(ErrorCode.INTERNAL_ERROR, "Internal chat error")
+            )
+        }
+    }
+
+    getUnreadCount = async(req: Request, res: Response) => {
+        const userId = req.user!.id;
+    
+        try{
+            const unread = await this.chatservice.getUnreadCount(Number(userId));
+            return res.status(200).json(
+                Apiresponse.success(unread, "unread count fetched")
+            );
+
+        }catch(error){
+            console.error("error in getUnreadCOunt: ", error);
+            if (error instanceof AppError){
+                return res.status(error.statusCode).json(
+                    Apiresponse.error(error.code, error.message)
+                )
+            }
+            return res.status(500).json(
+                Apiresponse.error(ErrorCode.INTERNAL_ERROR, "Internal unreadcount error")
             )
         }
     }

@@ -39,7 +39,7 @@ export class ChatSocketHandler{
         }
     }
 
-    private async onGetHistory(socket: chatSocket, userId: string, data:{withUserId: string; limit?: number; before?: Data}): Promise<void>{
+    private async onGetHistory(socket: chatSocket, userId: number, data:{withUserId: string; limit?: number; before?: Data}): Promise<void>{
         try{
             const message = await this.chatservice.getHistory(userId, data.withUserId, data.limit, data.before);
             socket.emit('history', {withUserId: data.withUserId, message})

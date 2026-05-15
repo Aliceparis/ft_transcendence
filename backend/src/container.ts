@@ -33,10 +33,12 @@ import { createGameRouter } from "./game/game.router";
 import { createFriendshipRouter } from "./friendship/friendship.router";
 import { createChatRouter } from "./chat/chat.router";
 import { Router } from "express";
+import { PrismaClient } from "@prisma/client";
 
 
 export class Container{
     private static instance: Container;
+    private prisma = new PrismaClient();
     //repo
     public questionRepo!: QuestionRepository;
     public userRepo!: UserRepository;
@@ -81,7 +83,9 @@ export class Container{
     public friendRouter: any;
     public chatRouter: any;
 
-    private constructor(){}
+    private constructor(
+        
+    ){}
 
     public static getInstance(): Container{
         if (!Container.instance){
@@ -98,7 +102,7 @@ export class Container{
         this.roomRepo = new RoomRepository();
         this.gameRepo = new RedisGameRepository();
         this.friendRepo = new FriendshipRepository();
-        //this.chatRepo = new ChatRepository();
+        this.chatRepo = new ChatRepository(this.prisma);
 
         //initialise services without dependance
         this.questionService = new QuestionService(this.questionRepo);
@@ -142,19 +146,19 @@ export class Container{
         this.friendController = new FriendshipController(this.friendService);
 
         //chat 
-        //this.chatService = new ChatService(
-        //    this.chatEmitter,
-        //    this.friendService,
-        //    this.chatRepo
-        //);
-        //this.chatController = new ChatController(this.chatService);
+        this.chatService = new ChatService(
+            this.chatEmitter,
+            this.friendService,
+            this.chatRepo
+        );
+        this.chatController = new ChatController(this.chatService);
 
         //router
         this.authRouter = createAuthRouter(this.authService);
         this.userRouter = createUserRouter(this.userService);
         this.gameRouter = createGameRouter(this.gameService);
         this.friendRouter = createFriendshipRouter(this.friendController);
-        //this.chatRouter = createChatRouter(this.chatController);
+        this.chatRouter = createChatRouter(this.chatController);
 
         //sockethandler
         this.gameSocketHandler = new GameSocketHandler(
@@ -176,10 +180,10 @@ export class Container{
             this.userRepo
         );
 
-        //this.chatSocketHandler = new ChatSocketHandler(
-        //    chatNs,
-        //    this.chatService
-        //)
+        this.chatSocketHandler = new ChatSocketHandler(
+            chatNs,
+            this.chatService
+        )
     }
 }
 export const container = Container.getInstance();
