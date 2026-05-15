@@ -65,7 +65,17 @@ jobs:
 
       - name: test backend container
         run: |
-          curl -f http://localhost:3000 || exit 1
+          for i in {1..30}; do
+            if curl -sf http://localhost:3000; then
+              exit 0
+            fi
+            echo "waiting backend..."
+            sleep 2
+          done
+      
+          echo "backend failed to start"
+          docker logs backend-container
+          exit 1
 
   frontend:
     runs-on: ubuntu-24.04
