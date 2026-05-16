@@ -35,7 +35,26 @@ interface Quiz
     questions:  Question[];
 }
 
+async function connectWithRetry(retries = 5) {
+  while (retries > 0) {
+    try {
+      await prisma.$connect();
+      const result = await prisma.$queryRaw`SELECT current_user, current_database();`;
+      console.log('Database connected:', result);
+      return;
+    } catch (err) {
+      console.log(`数据库连接失败，剩余重试次数: ${retries--}`);
+      await new Promise(res => setTimeout(res, 2000));
+    }
+  }
+  throw new Error('无法连接到数据库');
+}
+
+
 async function main(): Promise<void> {
+    console.log("database url in env: ", process.env.DATABASE_URL);
+    console.log("DB_URL Length:", process.env.DATABASE_URL?.length);
+    await connectWithRetry();
     const adminEmail = process.env.ADMIN_EMAIL;
     const adminPassword = process.env.ADMIN_PASSWORD;
 

@@ -1,9 +1,9 @@
-import { AppError, ErrorCode } from "src/error/apperror";
+import { AppError, ErrorCode } from "../error/apperror";
+import { QuestionService } from "../question/question.service";
 import { MultiPlayerFacade } from "./game.multi";
+import { IGameRepository } from "./game.redis.repository";
 import { GameMode, GameState, GameUpdateResponse, SetReadyResult, StartGameParams, StartMultiResult } from "./game.types";
 import { SoloService } from "./solo";
-import { IGameRepository } from "src/game/game.redis.repository";
-import { QuestionService } from "src/question/question.service";
 
 export type GameStartResult = GameUpdateResponse | {status: 'waiting' | 'matched'; players?: any[]; roomId?: string};
 

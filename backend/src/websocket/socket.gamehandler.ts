@@ -1,15 +1,14 @@
-import { RedisGameRepository } from "src/game/game.redis.repository";
-import { MatchService } from "src/game/match/match.service";
 //import { RoomManager } from "src/room/room.manager";
 import { GameEmitter } from "./socket.emitter";
 import { Namespace, Socket } from "socket.io";
 import { Redis, RedisKeys } from "../lib/redis"
-import { GameState } from "src/game/game.types";
-import { RoomService } from "src/room/room.service";
-import { SessionService } from "src/game/session.service";
-import { GameService } from "src/game/game.service";
 import { ClientToServerEvents, ServerToClientEvents } from "./socket.types";
 import { StatementSync } from "node:sqlite";
+import { RoomService } from "../room/room.service";
+import { MatchService } from "../game/match/match.service";
+import { RedisGameRepository } from "../game/game.redis.repository";
+import { GameService } from "../game/game.service";
+import { SessionService } from "../game/session.service";
 
 type TypedNamespace = Namespace<ClientToServerEvents, ServerToClientEvents>;
 type TypedSocket = Socket<ClientToServerEvents, ServerToClientEvents>; //socket <listend, emit>;

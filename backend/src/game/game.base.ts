@@ -1,8 +1,6 @@
-import { randomUUID } from "crypto";
-import { QuestionService } from "src/question/question.service";
+import { AppError, ErrorCode } from "../error/apperror";
+import { QuestionService } from "../question/question.service";
 import { Player, BaseGameState, GameUpdateResponse, PlayerSnapShot, FinalScore, GameMode, MultiGameState, SoloGameState, GameState } from "./game.types";
-import { AppError, ErrorCode } from "src/error/apperror";
-import { IGameRepository } from "src/game/game.redis.repository";
 
 
 export class GameBaseService
@@ -26,7 +24,7 @@ export class GameBaseService
 
     protected async prepareGame(players: Record<string, Player>, mode: GameMode, extra?: {roomId?: string, hostId?: string, category?: string}): Promise<GameState> {
         const questions = await this.questionService.getQuestions(10, extra?.category);
-        const gameId = randomUUID();
+        const gameId = crypto.randomUUID();
         const base = {
             gameId,
             mode: mode,
@@ -128,7 +126,6 @@ export class GameBaseService
                 id,
                 {
                     id: player.id,
-                    nickname: player.nickname,
                     score: player.score,
                     status: player.status,
                     isAI: player.isAI || false

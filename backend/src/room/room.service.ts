@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto';
 import type { RoomPlayer, Room, CreateRoomParams, JoinRoomParams, RoomStatus } from "./room.types";
 import { RoomRepository } from './room.repository';
-import { AppError, ErrorCode } from 'src/error/apperror';
+import { AppError, ErrorCode } from '../error/apperror';
 
 
 export class RoomService{
