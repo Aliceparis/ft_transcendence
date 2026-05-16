@@ -96,6 +96,7 @@ jobs:
       # Add this file to .gitignore — never commit real values
       - name: create .env file
         run: |
+<<<<<<< HEAD
           {
             echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}"
             echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}"
@@ -111,18 +112,20 @@ jobs:
           ls -la .env
           wc -l .env
 
+
       - name: build images
         run: docker compose build --no-cache
-
-      - name: build backend with verbose
-        run: docker build --no-cache --progress=plain -f backend/Dockerfile . 2>&1
 
       - name: start full stack  
         run: docker compose up -d --wait
 
       - name: show compose logs on failure
         if: failure()
-        run: docker compose logs
+        run: docker compose logs frontend
+
+      - name: backe logs
+        if: failure()
+        run: docker compose logs backend
 
       # Test the root route
       - name: test via NGINX front
