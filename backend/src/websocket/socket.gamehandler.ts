@@ -230,7 +230,10 @@ export class GameSocketHandler{
             this.io.to(gamestate.roomId).emit('answer_result', {
                 gameId,
                 status: result.status,
-                lastAnswerUpdate: result.lastAnswerUpdate!,
+                lastAnswerUpdate:{
+                    ...result.lastAnswerUpdate!,
+                    correctText: result.lastAnswerUpdate?.correctText ?? "",
+                },
                 nextQuestion: result.nextQuestion,
                 players: result.state.player,
                 finalScore: result.finalScore,

@@ -6,7 +6,6 @@ import { RedisGameRepository } from "./game.redis.repository";
 import { PrismaGameRepository } from "./game.score";
 import { BaseGameState, GameState, GameUpdateResponse, MatchPlayer, MatchResult, SetReadyResult, StartGameParams } from "./game.types";
 import { SoloService } from "./solo";
-import {GameMode} from "@prisma/client"
 
 export type GameStartResult = GameUpdateResponse | {status: 'waiting' | 'matched'; players?: any[]; roomId?: string};
 
@@ -28,11 +27,11 @@ export class GameService{
         const {mode, userId, nickname, category, size} = params;
 
         switch(mode){
-            case GameMode.SOLO:
-                const state = await this.soloservice.startGame(userId, nickname, GameMode.SOLO, category);
+            case "SOLO":
+                const state = await this.soloservice.startGame(userId, nickname, "SOLO", category);
                 return this.mapper.toUpdateResponse(state);
-            case GameMode.MULTIPLAYER:
-                const result =  await this.multiplayer.joinMatchmaking(GameMode.MULTIPLAYER, userId, nickname, size);
+            case "MULTIPLAYER":
+                const result =  await this.multiplayer.joinMatchmaking("MULTIPLAYER", userId, nickname, size);
                 return {
                     status: result.status,
                     roomId: result.roomId,
@@ -61,7 +60,7 @@ export class GameService{
         let state: BaseGameState;
         let lastAnswer: any;
 
-        if (gameState.mode === GameMode.MULTIPLAYER) {
+        if (gameState.mode === "MULTIPLAYER") {
             ({state, lastAnswer} = await this.multiplayer.submitAnswer(gameId, selectedAnswerIndex, userId));
         } else {
             ({state, lastAnswer} = await this.soloservice.submitAnswer(gameId, selectedAnswerIndex, userId));
@@ -75,16 +74,6 @@ export class GameService{
 
     async setReady(roomId: string, userId: string, isReady: boolean): Promise<SetReadyResult>{
         return this.multiplayer.setPlayerReady(roomId, userId, isReady);
-    }
-
-    async finishGame(gameId: string): Promise<void>{
-        const state = await this.gameRepository.findById(gameId);
-        if (!state || !state.isFinished)
-                return ;
-        
-        const matchresult: MatchResult = this.mapper.toMatchResult(state);
-        await this.db.create(matchresult);
-        await this.gameRepository.delete(gameId);
     }
 
     private async persistAndClean(state: BaseGameState): Promise<void> {

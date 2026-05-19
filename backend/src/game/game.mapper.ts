@@ -23,7 +23,8 @@ export class GameMapper {
                 player:  this.buildPublicPlayerSnapShot(state.players)
             },
             nextQuestion: isfinished? null : this.questionService.toPublicQuestion(currentQuestion),
-            finalScore: isfinished? this.buildFinalScore(state.players) : null
+            finalScore: isfinished? this.buildFinalScore(state.players) : null,
+            lastAnswerUpdate: lastAnswerUpdate ?? undefined,
         }
     }
 
