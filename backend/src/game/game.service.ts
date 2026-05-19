@@ -2,7 +2,8 @@ import { AppError, ErrorCode } from "../error/apperror";
 import { QuestionService } from "../question/question.service";
 import { MultiPlayerFacade } from "./game.multi";
 import { IGameRepository } from "./game.redis.repository";
-import { GameMode, GameState, GameUpdateResponse, SetReadyResult, StartGameParams, StartMultiResult } from "./game.types";
+import { PrismaGameRepository } from "./game.score";
+import { GameMode, GameState, GameUpdateResponse, SetReadyResult, StartGameParams } from "./game.types";
 import { SoloService } from "./solo";
 
 export type GameStartResult = GameUpdateResponse | {status: 'waiting' | 'matched'; players?: any[]; roomId?: string};
@@ -13,6 +14,7 @@ export class GameService{
         private multiplayer: MultiPlayerFacade,
         private gameRepository: IGameRepository,
         private questionService: QuestionService,
+        private db: PrismaGameRepository, //save into database
     ){}
 
     async listCategories(): Promise<string[]> {
@@ -56,6 +58,15 @@ export class GameService{
     async setReady(roomId: string, userId: string, isReady: boolean): Promise<SetReadyResult>{
         return this.multiplayer.setPlayerReady(roomId, userId, isReady);
     }
+
+    async finishGame(gameId: string): Promise<void>{
+        const state = await this.gameRepository.findById(gameId);
+        if (!state || !state.isFinished)
+                return ;
+        await this.db.create(state);
+        await this.gameRepository.delete(gameId);
+    }
+
 
     buildResponseForFront(gamestate: GameState): GameUpdateResponse{
         if (gamestate.mode === GameMode.MULTIPLAYER)
