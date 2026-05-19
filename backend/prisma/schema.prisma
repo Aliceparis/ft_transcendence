@@ -92,15 +92,21 @@ model MatchResult {
     winnerId  Int?
     winner    User?        @relation("MatchWinner", fields: [winnerId], references: [id])
     
-    scores    Json?
+    mode       GameMode
+    quizId     Int?
+    quiz       Quiz?    @relation(fields: [quizId], references: [id])
         
     @@index([winnerId])
+    @@index([mode])
 }
 
 model PlayerMatch {
     id        Int         @id @default(autoincrement())
     userId    Int
     matchId   Int
+    score     Int   @default(0)
+    correctAnswers  Int     @default(0)
+    rank        Int     @default(0)
     
     user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
     match     MatchResult @relation(fields: [matchId], references: [id], onDelete: Cascade)
@@ -123,4 +129,11 @@ enum Role {
 enum UserStatus {
     ONLINE
     OFFLINE
+}
+
+enum    GameMode {
+    SOLO
+    VS_AI
+    ONE_VS_ONE
+    TOURNAMENT
 }
