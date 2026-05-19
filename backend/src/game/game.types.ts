@@ -51,11 +51,11 @@ export interface BaseGameState {
 }
 
 export interface SoloGameState extends BaseGameState {
-    mode: GameMode.SOLO | GameMode.AI
+    mode: "SOLO" | "AI"
 }
 
 export interface MultiGameState extends BaseGameState {
-    mode: GameMode.MULTIPLAYER | GameMode.TOURNAMENT;
+    mode: "MULTIPLAYER" | "TOURNAMENT";
     roomId: string;
     hostId: string;
     status: "waiting" | "starting" | "playing" | "finished";
@@ -123,7 +123,7 @@ export type SetReadyResult = {
 
 //input
 export type StartGameParams = {
-   mode: GameMode.SOLO | GameMode.MULTIPLAYER;
+   mode: "SOLO" | "MULTIPLAYER";
    userId: string;
    nickname: string;
    category?: string;
