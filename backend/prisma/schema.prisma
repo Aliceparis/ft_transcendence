@@ -40,6 +40,8 @@ model Quiz {
   
   author      User       @relation(fields: [authorId], references: [id])
   authorId    Int
+
+  matchResults  MatchResult[]
 }
 
 model Question {
@@ -93,6 +95,7 @@ model MatchResult {
     winner    User?        @relation("MatchWinner", fields: [winnerId], references: [id])
     
     mode       GameMode
+    quizId     Int?
     quiz       Quiz?    @relation(fields: [quizId], references: [id])
         
     @@index([winnerId])
