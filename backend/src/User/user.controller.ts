@@ -49,6 +49,7 @@ export class UserController{
             res.json(result)
 
         }catch(error) {
+            console.error("error in  GetProfilByUsername: ", error);
             if (error instanceof AppError){
                 return res.status(error.statusCode).json(
                     Apiresponse.error(error.code, error.message)
