@@ -124,7 +124,7 @@ export type SetReadyResult = {
 
 //input
 export type StartGameParams = {
-   mode: "SOLO" | "MULTIPLAYER";
+   mode: "SOLO" | "MULTIPLAYER" | "AI";
    userId: string;
    nickname: string;
    category?: string;

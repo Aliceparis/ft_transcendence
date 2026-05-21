@@ -80,7 +80,7 @@ export type PublicGameState = z.infer<typeof PublicGameStateSchema>;
 
 // Backend: Start game parameters
 export const StartGameParmsSchema = z.object({
-    mode: z.enum(['solo', 'multi']),
+    mode: z.enum(['solo', 'multi', 'ai']),
     userId: z.string(),
     nickname: z.string(),
 });

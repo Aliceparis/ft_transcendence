@@ -11,13 +11,15 @@ export class GameController
     start = async(req: Request, res: Response)=>
     {
         try{
-            console.log("mode in params: ", req.params);
-            const {category, size, mode: gamemode} = req.validatedBody;
-            console.log("mode in start game: ", gamemode);
-            const mode = gamemode === 'multiplayer' ? "MULTIPLAYER"
-               : 'SOLO';
+            // console.log("mode in params: ", req.params);
+            const { mode: modeParam } = req.params;
+            const { category, size } = req.validatedBody;
+            // console.log("mode in start game: ", gamemode);
+            const mode = modeParam?.toUpperCase() === 'AI' ? 'AI' : 
+                         modeParam?.toUpperCase() === 'MULTIPLAYER' ? 'MULTIPLAYER' 
+                         : 'SOLO';
             const result = await this.gameService.startGame({
-                mode,
+                mode: mode as any,
                 userId: req.user!.id,
                 nickname: req.user!.username,
                 category: category,
