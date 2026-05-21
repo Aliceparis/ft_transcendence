@@ -11,9 +11,13 @@
 	let socket: Socket | null = null;
 
 	onMount(() => {
-		if (props.data.connected) {
+		if (props.data.connected && !socket) {
 			socket = connectWS();
 		}
+		return () => {
+        	socket?.disconnect();
+        	socket = null;
+    	};
 	});
 
 	async function handleLogout() {
@@ -28,6 +32,7 @@
 				return;
 			}
 			socket?.disconnect();
+			res.clearCookie('auth_token');
 			window.location.href='/?logout=true';
 		}
 		catch (error){
