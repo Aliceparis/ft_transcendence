@@ -1,5 +1,4 @@
 import {SendFriendRequestInput} from "@shared/friendship.schema";
-import { string } from "zod/v4-mini";
 import { RoomStatus } from "../room/room.types";
 import { GameUpdateResponse, MatchPlayer, PlayerSnapShot } from "../game/game.types";
 import { PublicQuestion } from "@shared/game.schema";
@@ -138,15 +137,15 @@ export type FriendSocketEvents = {
 export type ChatSocketEvents ={
     'message_received': (data: {
         messageId: string;
-        fromUserId: string;
-        toUserId: string;
+        senderId: string;
+        receiverId: string;
         content: string;
         createdAt: number;
     }) => void;
 
     'message_send': (data:{
         messageId: string;
-        toUserId: string;
+        receiverId: string;
         content: string;
         createdAt: number;
     }) => void;
