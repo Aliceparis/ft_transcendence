@@ -46,6 +46,7 @@ const start = async () => {
     friendNs.on('connection', socket => container.friendSocketHandler.onConnection(socket));
     chatNs.on('connection', socket => container.chatSocketHandler.onConnection(socket));
 
+
     app.use('/api/auth', container.authRouter);
     app.use('/api/user', container.userRouter);
     app.use('/api/game', container.gameRouter);
