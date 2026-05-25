@@ -55,6 +55,7 @@ export type AnswerResultPayload = {
         playerId: string;
         isCorrect: boolean;
         correctAnswerIndex: number;
+        correctText: string;
     };
     nextQuestion?: PublicQuestion | null;
     players: Record<string, PlayerSnapShot>;
@@ -87,29 +88,29 @@ export type AnswerSubmitPayload = {
 export type SocketEvents = Record<string, (data: any) => void>;
 
 // Events emitted from the server to the client
-export interface ServerToClientEvents {
-    'matched': (data: MatchPayload) => void;
+export type ServerToClientEvents = {
+	'matched': (data: MatchPayload) => void;
 
-    'player_ready': (data: PlayerReadyPayload) => void;
+	'player_ready':(data:PlayerReadyPayload) => void;
 
-    'game_started': (data: GameStartedPayload) => void;
+	'game_started': (data: GameStartedPayload) => void;
 
-    'answer_submitted': (data: AnswerSubmitPayload) => void;
-    'answer_result': (data: AnswerResultPayload) => void;
+	'answer_submitted': (data: AnswerSubmitPayload) => void;
+	'answer_result':(data: AnswerResultPayload) => void;
 
-    'game_finished': (data: GameFinishedPayload) => void;
+	'game_finished':(data: GameFinishedPayload) => void;
 
-    'player_left': (data: PlayerLeftPayload) => void;
+	'player_left':(data: PlayerLeftPayload) => void;
 
-    'reconnect': (data: ReconnectLoad) => void;
-    'error': (data: {
-        message: string;
-    }) => void;
+	'session_reconnect': (data: ReconnectLoad)=> void;
+	'error': (data: {
+		message: string;
+	}) => void;
 }
 
 // Events emitted from the client to the server
-export interface ClientToServerEvents {
-    submit_answer: (data: {
+export type ClientToServerEvents = {
+    submit_answer:(data: {
         gameId: string;
         answerIndex: number;
     }) => void;
@@ -121,47 +122,52 @@ export interface ClientToServerEvents {
 }
 
 // Friend system socket events
-export interface FriendSocketEvents {
-    'friend_request': (data: {
+export type FriendSocketEvents = {
+    'friend_request':(data: {
         fromUserId: string;
         fromNickname: string;
     }) => void;
 
-    'friend_accept': (data: {
+    'friend_accept':(data: {
         userId: string;
         nickname: string;
     }) => void;
 
-    'friend_online': (data: {
+    'friend_online':(data: {
         userId: string;
         nickname: string;
     }) => void;
 
-    'friend_offline': (data: {
+    'friend_offline':(data: {
         userId: string;
         nickname: string;
     }) => void;
 }
 
 // Chat system socket events
-export interface ChatSocketEvents {
+export type ChatSocketEvents ={
     'message_received': (data: {
         messageId: string;
-        fromUserId: string;
+        senderId: string;
+        receiverId: string;
         content: string;
         createdAt: number;
     }) => void;
 
-    'message_send': (data: {
+    'message_send': (data:{
         messageId: string;
-        toUserId: string;
+        receiverId: string;
         content: string;
         createdAt: number;
     }) => void;
 
-    'history': (data: {
+    'history': (data:{
         withUserId: string;
         message: any[];
+    }) => void;
+
+    'unread_count': (data: {
+        perSender: {senderId: number; count: number}[];
     }) => void;
 
     'error': (data: {
