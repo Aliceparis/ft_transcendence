@@ -197,14 +197,14 @@ export class GameSocketHandler{
 
     private async onSubmitAnswer(socket: TypedSocket, userId: string, data: Parameters<ClientToServerEvents['submit_answer']>[0], ack?: (response: any) => void): Promise<void> {
         try {
-            const { gameId, answerIndex } = data;
+            const { gameId, selectedAnswerIndex } = data;
             
-            if (!gameId || answerIndex === undefined) {
-                socket.emit('error', { message: 'Missing gameId or answerIndex' });
+            if (!gameId || selectedAnswerIndex === undefined) {
+                socket.emit('error', { message: 'Missing gameId or selectedAnswerIndex' });
                 return;
             }
 
-            const result = await this.gameService.submitAnswer(gameId, answerIndex, userId);
+            const result = await this.gameService.submitAnswer(gameId, selectedAnswerIndex, userId);
             
             if (!result) {
                 socket.emit('error', { message: 'Failed to submit answer' });

@@ -157,7 +157,7 @@
       return;
     }
     const socket = getGameSocket();
-    socket.emit('submit_answer', { gameId, answerIndex }, (ack: any) => {
+    socket.emit('submit_answer', { gameId, selectedAnswerIndex: answerIndex }, (ack: any) => {
       if (!ack || !ack.success) {
         // submission failed — revert answered so user can retry
         answered = false;
