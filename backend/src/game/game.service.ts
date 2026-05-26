@@ -80,6 +80,13 @@ export class GameService{
         const matchResult = this.mapper.toMatchResult(state);
         await this.db.create(matchResult);
         await this.gameRepository.delete(state.gameId);
+        if (state.mode === 'MULTIPLAYER'){
+            const roomId = state.roomId;
+            const userIds = Object.keys(state.players);
+            if (roomId){
+                await this.multiplayer.cleanupRoom(roomId, userIds);
+            }
+        }
     }
 
 }

@@ -94,10 +94,27 @@ export class GameSocketHandler{
             case "matched":{
                 const match = await this.matchservice.getMyMatch(userId);
                 if (!match){
-                    await this.sessionService.update(userId, {
-                        status: "idle"
-                });
-                break;}
+                    const session = await this.sessionService.get(userId);
+                    if (session?.roomId){
+                        await this.sessionService.update(userId, {status: 'in_room'});
+                        const room = await this.roomservice.getRoom(session.roomId);
+                        if (room){
+                            socket.emit('session_reconnect', {
+                                type: 'in_room',
+                                roomId: room.roomId,
+                                players: Object.values(room.players).map(p => ({
+                                    id: p.userId,
+                                    nickname: p.nickname,
+                                    isReady: p.isReady
+                                })),
+                                roomStatus: room.status
+                            })
+                        }
+                    } else {
+                        await this.sessionService.update(userId, {status: 'idle'})
+                    }
+                    break;
+                }
 
                 socket.emit('session_reconnect', {
                     type: "matched",
