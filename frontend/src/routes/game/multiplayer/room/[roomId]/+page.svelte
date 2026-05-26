@@ -14,6 +14,7 @@
   let error = $state('');
   let starting = $state(false);
   let leaving = false;
+  let inTournament = $state(false);
 
   function attachListeners() {
     const socket = getGameSocket();
@@ -89,7 +90,8 @@ async function toggleReady() {
 
   onMount(() => {
     attachListeners();
-    // load players from sessionStorage (set by the matched event on the previous page)
+    try { inTournament = !!sessionStorage.getItem('current_tournament_id'); } catch {}
+    // load players from sessionStorage (set by next_match_ready)
     try {
       const raw = sessionStorage.getItem('mp_room_players');
       if (raw) {
@@ -116,7 +118,7 @@ async function toggleReady() {
 
 <div class="max-w-3xl mx-auto px-4 py-6 leading-relaxed font-serif text-blue-200 bg-white/15 backdrop-blur-xs rounded">
   <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-pink-200 text-center mb-2">
-    Lobby
+    {inTournament ? 'Tournament Match' : 'Lobby'}
   </h1>
   <p class="text-center text-sm text-blue-100/80 mb-6">Room {roomId}</p>
 

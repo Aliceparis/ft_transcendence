@@ -8,7 +8,7 @@ export class TournamentController {
 
     join = async (req: Request, res: Response) => {
         try {
-            const userId = req.user!.id;
+            const userId = String(req.user!.id);
             const nickname = req.user!.username;
             const result = await this.tournamentService.joinQueue(userId, nickname);
             if (result.status === 'waiting') {
@@ -21,6 +21,37 @@ export class TournamentController {
                 return res.status(error.statusCode).json(Apiresponse.error(error.code, error.message));
             }
             return res.status(500).json(Apiresponse.error("INTERNAL_ERROR", "Internal tournament join"));
+        }
+    }
+
+    leave = async (req: Request, res: Response) => {
+        try {
+            const userId = String(req.user!.id);
+            await this.tournamentService.leave(userId);
+            return res.status(200).json(Apiresponse.success(null, "Left tournament"));
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json(Apiresponse.error("INTERNAL_ERROR", "Internal tournament leave"));
+        }
+    }
+
+    myRoom = async (req: Request, res: Response) => {
+        try {
+            const userId = String(req.user!.id);
+            const state = await this.tournamentService.getByUser(userId);
+            if (!state || state.status === 'finished') {
+                return res.status(200).json(Apiresponse.success({ roomId: null }, "No active tournament room"));
+            }
+            const match = state.matches.find(m =>
+                (m.p1 === userId || m.p2 === userId) && m.status === 'ready'
+            );
+            return res.status(200).json(Apiresponse.success({
+                roomId: match?.roomId ?? null,
+                tournamentId: state.tournamentId,
+            }, "Tournament room"));
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json(Apiresponse.error("INTERNAL_ERROR", "Internal tournament my-room"));
         }
     }
 

@@ -41,19 +41,22 @@
       goto(`/game/tournament/${payload.tournamentId}`);
     });
 
+    // next_match_ready takes priority — don't let bracket_update override it
     socket.on('bracket_update', (payload: { tournamentId: string }) => {
-      // already in a tournament — go to bracket
       joinedTournament = payload.tournamentId;
       try { sessionStorage.setItem('current_tournament_id', payload.tournamentId); } catch {}
-      goto(`/game/tournament/${payload.tournamentId}`);
+      // Only redirect to bracket if we're not already heading to a room
+      if (!sessionStorage.getItem('tournament_pending_room')) {
+        goto(`/game/tournament/${payload.tournamentId}`);
+      }
     });
 
-    // covers a race where next_match_ready arrives before we navigate to the bracket page
     socket.on('next_match_ready', (payload: { tournamentId: string; roomId: string; players: { userId: string; nickname: string }[] }) => {
       joinedTournament = payload.tournamentId;
       try {
         sessionStorage.setItem('current_tournament_id', payload.tournamentId);
         sessionStorage.setItem('mp_room_players', JSON.stringify(payload.players ?? []));
+        sessionStorage.setItem('tournament_pending_room', payload.roomId);
       } catch {}
       goto(`/game/multiplayer/room/${payload.roomId}`);
     });
@@ -74,6 +77,14 @@
     info = '';
     waiting = true;
     try {
+      // Clean up any previous tournament state before joining a new one
+      try {
+        await fetch('/api/tournament/leave', { method: 'POST', credentials: 'include' });
+        sessionStorage.removeItem('current_tournament_id');
+        sessionStorage.removeItem('tournament_pending_room');
+        sessionStorage.removeItem('mp_room_players');
+      } catch {}
+
       await ensureSocketConnected();
       setupListeners();
       const response = await fetch('/api/tournament/join', {

@@ -70,7 +70,7 @@ export class TournamentService {
 
             const tournamentId = randomUUID();
             const players: TournamentPlayer[] = match.players.map(p => ({
-                userId: p.userId,
+                userId: String(p.userId),
                 nickname: p.nickname,
             }));
 
@@ -157,9 +157,13 @@ export class TournamentService {
             bm.roomId = room.roomId;
             bm.status = 'ready';
 
-            // join each player's socket to the room
+            // join each player's socket to the room (retry in case onConnection Redis key is not written yet)
             for (const player of [p1, p2]) {
-                const socketId = await this.redis.get(RedisKeys.socket.gameUser(player.userId));
+                let socketId: string | null = null;
+                for (let attempt = 0; attempt < 5 && !socketId; attempt++) {
+                    socketId = await this.redis.get(RedisKeys.socket.gameUser(player.userId));
+                    if (!socketId) await new Promise(r => setTimeout(r, 80));
+                }
                 if (socketId) this.gameNs.sockets.get(socketId)?.join(room.roomId);
 
                 await this.sessionService.update(player.userId, {
@@ -327,6 +331,31 @@ export class TournamentService {
                 gameId: undefined,
             }))
         );
+    }
+
+    /**
+     * Cleanly remove a player from their current tournament (forfeit if needed)
+     * and reset their session so they can join a new one.
+     */
+    async leave(userId: string): Promise<void> {
+        // Remove from matchmaking queue in case they were still waiting
+        await this.matchService.leaveQueue(userId);
+
+        const state = await this.repo.getByUser(userId);
+        if (state && state.status !== 'finished') {
+            await this.forfeit(state.tournamentId, userId);
+        }
+
+        // Clear the user→tournament index so getByUser returns null
+        await this.redis.del(RedisKeys.tournament.user(userId));
+
+        // Reset session
+        await this.sessionService.update(userId, {
+            status: 'idle',
+            tournamentId: undefined,
+            roomId: undefined,
+            gameId: undefined,
+        });
     }
 
     async getPublic(tournamentId: string): Promise<PublicBracketView | null> {
