@@ -67,7 +67,7 @@
 			return;
 		if (inputContent) {
 			sendMessage(selectedUserId, inputContent);
-			inputContent = "";
+			inputContent = '';
 		}
 		return;
 	}
