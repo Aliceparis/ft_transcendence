@@ -37,6 +37,6 @@ export type UpdateStatusInput = z.infer<typeof Update_Status_Input>;
 
 // Zod schema for the username parameter used to fetch a user's friends list.
 export const GetFriends_param = z.object({
-    Username: z.string(),
+    username: z.string(),
 })
 export type GetFriendsParam = z.infer<typeof GetFriends_param>;
