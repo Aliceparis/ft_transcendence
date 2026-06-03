@@ -48,6 +48,9 @@
   // eliminated players can actually watch (scoreboard + current question).
   let spectatorFeed = $state<SpectatorUpdate | null>(null);
 
+  // Set once the backend has written the final scores to the blockchain.
+  let onchainTx = $state<{ txHash: string; explorerUrl: string } | null>(null);
+
   // Countdown shown to the user before being redirected to their next match room,
   // so they get to see the bracket update (yellow "waiting" / green "in the final" banner).
   let redirectRoomId = $state<string | null>(null);
@@ -135,11 +138,13 @@
     socket.off('bracket_update');
     socket.off('next_match_ready');
     socket.off('tournament_finished');
+    socket.off('tournament_onchain');
     socket.off('spectator_update');
     socket.off('error');
 
     socket.on('tournament_started', (payload: { tournamentId: string; bracket: PublicBracketView }) => {
       bracket = payload.bracket;
+      onchainTx = null;
     });
 
     socket.on('bracket_update', (payload: { tournamentId: string; bracket: PublicBracketView }) => {
@@ -159,6 +164,10 @@
       bracket = payload.bracket;
       spectatorFeed = null;
       try { sessionStorage.removeItem('current_tournament_id'); } catch {}
+    });
+
+    socket.on('tournament_onchain', (payload: { tournamentId: string; txHash: string; explorerUrl: string }) => {
+      onchainTx = { txHash: payload.txHash, explorerUrl: payload.explorerUrl };
     });
 
     socket.on('spectator_update', (payload: SpectatorUpdate) => {
@@ -293,6 +302,19 @@
         {/each}
       </div>
     </section>
+
+    <!-- Blockchain certification badge -->
+    <div class="text-center mb-8">
+      {#if onchainTx}
+        <a href={onchainTx.explorerUrl} target="_blank" rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/20 border border-emerald-300/40 text-emerald-100 text-sm hover:bg-emerald-500/30 transition">
+          🔗 Scores certifiés sur la blockchain (Avalanche Fuji)
+          <span class="font-mono text-xs text-emerald-200/80">{onchainTx.txHash.slice(0, 10)}…</span>
+        </a>
+      {:else}
+        <p class="text-xs text-blue-100/40">Enregistrement des scores sur la blockchain…</p>
+      {/if}
+    </div>
 
     <div class="flex justify-center gap-4">
       <a href="/modes" class="px-6 py-3 rounded bg-white/20 hover:bg-white/30 border border-white/20 text-blue-100 font-semibold transition">

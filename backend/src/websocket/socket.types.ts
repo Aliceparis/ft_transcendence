@@ -105,6 +105,7 @@ export type ServerToClientEvents = {
     'bracket_update': (data: BracketUpdatePayload) => void;
     'next_match_ready': (data: NextMatchReadyPayload) => void;
     'tournament_finished': (data: TournamentFinishedPayload) => void;
+    'tournament_onchain': (data: TournamentOnchainPayload) => void;
     'spectator_update': (data: SpectatorUpdatePayload) => void;
     // a player (or the whole room) failed to ready up in time
     'ready_timeout': (data: ReadyTimeoutPayload) => void;
@@ -156,6 +157,13 @@ export type TournamentFinishedPayload = {
     bracket: PublicBracketView;
     winnerId: string;
     ranking: string[];
+}
+
+// Final scores were written on-chain; carries the tx hash + explorer link.
+export type TournamentOnchainPayload = {
+    tournamentId: string;
+    txHash: string;
+    explorerUrl: string;
 }
 
 export type ClientToServerEvents = {

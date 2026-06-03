@@ -42,6 +42,7 @@ import { GameMapper } from "./game/game.mapper";
 import { PrismaGameRepository } from "./game/game.score";
 import { QuestionTimerService } from "./game/question-timer.service";
 import { ReadyTimerService } from "./game/ready-timer.service";
+import { BlockchainService } from "./blockchain/blockchain.service";
 
 
 export class Container{
@@ -76,6 +77,7 @@ export class Container{
     public gamemapper!: GameMapper;
     public questionTimer!: QuestionTimerService;
     public readyTimer!: ReadyTimerService;
+    public blockchainService!: BlockchainService;
 
     //controller
     public friendController!: FriendshipController;
@@ -145,6 +147,9 @@ export class Container{
         //per-room 45s readiness deadline (server-authoritative)
         this.readyTimer = new ReadyTimerService(45_000);
 
+        //blockchain (Avalanche Fuji) — fail-soft if env is missing
+        this.blockchainService = new BlockchainService();
+
         //multigamefacade
         this.multiplayerFacade = new MultiPlayerFacade(
             this.matchService,
@@ -178,6 +183,7 @@ export class Container{
             gameNs,
             redis,
             this.readyTimer,
+            this.blockchainService,
         );
         // wire tournament back into the multiplayer facade so room→game linking can notify the bracket
         this.multiplayerFacade.setTournamentService(this.tournamentService);

@@ -11,6 +11,7 @@ import { GameMode } from "@prisma/client";
 import { TournamentRepository } from "./tournament.repository";
 import { BracketMatch, PublicBracketView, TournamentPlayer, TournamentState } from "./tournament.types";
 import { ReadyTimerService } from "../game/ready-timer.service";
+import { BlockchainService, OnchainTournament } from "../blockchain/blockchain.service";
 
 const TOURNAMENT_SIZE = 4;
 
@@ -24,6 +25,7 @@ export class TournamentService {
         private gameNs: Namespace,
         private redis: typeof Redis,
         private readyTimer: ReadyTimerService,
+        private blockchain: BlockchainService,
     ) {}
 
     /**
@@ -499,6 +501,49 @@ export class TournamentService {
                 gameId: undefined,
             }))
         );
+
+        // Persist the final scores on the blockchain. Fire-and-forget: a Fuji
+        // confirmation takes a few seconds and must neither hold the tournament
+        // lock nor delay the players' return to idle. The helper does its own
+        // error handling, so a chain failure never affects the tournament.
+        void this.recordOnchain(state, champion, ranking);
+    }
+
+    /**
+     * Write the finished tournament's scores to the blockchain and, on success,
+     * broadcast the transaction hash so the bracket page can show a verifiable
+     * on-chain badge. Never throws.
+     */
+    private async recordOnchain(state: TournamentState, champion: string, ranking: string[]): Promise<void> {
+        if (!this.blockchain.isEnabled()) return;
+        try {
+            const players = ranking.map((uid, i) => {
+                const player = state.players.find(p => p.userId === uid);
+                const stats = state.playerStats?.[uid];
+                return {
+                    nickname: player?.nickname ?? uid,
+                    score: stats?.correctAnswers ?? 0,
+                    rank: i + 1,
+                };
+            });
+            const championNickname = state.players.find(p => p.userId === champion)?.nickname ?? '';
+
+            const txHash = await this.blockchain.recordTournament(state.tournamentId, championNickname, players);
+            if (txHash) {
+                this.emitter.toRoom(`tournament:${state.tournamentId}`, 'tournament_onchain', {
+                    tournamentId: state.tournamentId,
+                    txHash,
+                    explorerUrl: this.blockchain.explorerTxUrl(txHash),
+                });
+            }
+        } catch (e) {
+            console.error(`[blockchain] failed to record tournament ${state.tournamentId}`, e);
+        }
+    }
+
+    /** Read a finished tournament's scores back from the blockchain. */
+    async getOnchainScores(tournamentId: string): Promise<OnchainTournament | null> {
+        return this.blockchain.getTournament(tournamentId);
     }
 
     /**
