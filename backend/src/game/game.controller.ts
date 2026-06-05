@@ -109,8 +109,11 @@ export class GameController
                 );
         }
 
-        const rawAnswer = req.body.selectedAnswerIndex;
+        const rawAnswer = req.validatedBody?.selectedAnswerIndex ?? req.body.selectedAnswerIndex;
         const selectedAnswerIndex = Number(rawAnswer);
+        const expectedQuestionId = req.validatedBody?.questionId === undefined
+            ? undefined
+            : Number(req.validatedBody.questionId);
 
         if (!Number.isInteger(selectedAnswerIndex) || selectedAnswerIndex < -1) {
             return res.status(400).json(
@@ -119,7 +122,7 @@ export class GameController
         }
 
         try {
-            const result = await this.gameService.submitAnswer(gameId, selectedAnswerIndex, userId);
+            const result = await this.gameService.submitAnswer(gameId, selectedAnswerIndex, userId, expectedQuestionId);
 
             if (!result) {
                 return res.status(404).json(

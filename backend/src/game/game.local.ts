@@ -88,7 +88,7 @@ export class LocalMultiPlayer extends GameBaseService {
      * 答题管道唯一入口。
      * 方案 3 核心演进：在击打 Lua 脚本之前，预先判定并完成 AI 决策的同步装载。
      */
-    async submitAnswer(gameId: string, selectedAnswerIndex: number, userId: string): Promise<{
+    async submitAnswer(gameId: string, selectedAnswerIndex: number, userId: string, expectedQuestionId?: number): Promise<{
         state: BaseGameState;
         lastAnswer: LastAnswerUpdate;
     }> {
@@ -103,6 +103,17 @@ export class LocalMultiPlayer extends GameBaseService {
         const currentQuestion = currentGameState.questions[currentGameState.currentQuestionIndex];
         if (!currentQuestion) {
             throw new AppError('Question not found', ErrorCode.QUESTION_NOT_FOUND, 404);
+        }
+        if (expectedQuestionId !== undefined && expectedQuestionId !== currentQuestion.id) {
+            return {
+                state: currentGameState,
+                lastAnswer: {
+                    playerId,
+                    isCorrect: false,
+                    correctAnswerIndex: -1,
+                    correctText: 'ALREADY_PROCESSED'
+                }
+            };
         }
 
         const tasks: AtomicAnswerTask[] = [{

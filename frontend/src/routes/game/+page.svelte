@@ -57,6 +57,8 @@
   let aiSelectedIndex = $state<number | null>(null);
   let timeLeft = $state(0);
   let timerInterval = $state<ReturnType<typeof setInterval> | null>(null);
+  let transitionTimer = $state<ReturnType<typeof setTimeout> | null>(null);
+  let hasSubmittedCurrent = $state(false);
 
   // 从 player map 里提取人类和 AI 的 snapshot
   function extractPlayers(players: Record<string, PlayerSnapshot>) {
@@ -104,6 +106,21 @@
     }
   }
 
+  function clearTransitionTimer() {
+    if (transitionTimer) {
+      clearTimeout(transitionTimer);
+      transitionTimer = null;
+    }
+  }
+
+  function scheduleTransition(callback: () => void) {
+    clearTransitionTimer();
+    transitionTimer = setTimeout(() => {
+      transitionTimer = null;
+      callback();
+    }, REVEAL_DELAY_MS);
+  }
+
   function startTimer() {
     stopTimer();
     timeLeft = QUESTION_TIME_MS;
@@ -132,12 +149,14 @@
     selectedIndex = null;
     correctIndex  = null;
     revealing     = false;
+    hasSubmittedCurrent = false;
     feedback      = '';
     resetAIState();
   }
 
   // ── 开始游戏 ──────────────────────────────────────────
   async function startGame() {
+    clearTransitionTimer();
     stopTimer();
     loading = true;
     error = '';
@@ -182,8 +201,10 @@
   }
 
   async function submitAnswer(answerIndex: number, isTimeout = false) {
-    if (!gameId || !currentQuestion || isFinished || revealing) return;
+    if (!gameId || !currentQuestion || isFinished || revealing || hasSubmittedCurrent) return;
 
+    const submittedQuestionId = currentQuestion.id;
+    hasSubmittedCurrent = true;
     loading = true;
     revealing = true;
     error = '';
@@ -199,7 +220,10 @@
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ selectedAnswerIndex: answerIndex })
+        body: JSON.stringify({
+          selectedAnswerIndex: answerIndex,
+          questionId: submittedQuestionId
+        })
       });
       const result: ApiResponse<GameUpdateResponse> = await res.json();
 
@@ -213,6 +237,42 @@
       const nextPlayers = data.state?.player ?? {};
       const nextTotalQuestions = data.state?.totalQuestions ?? totalQuestions;
 
+      if (data.lastAnswerUpdate?.correctText === 'ALREADY_PROCESSED') {
+        if (transitionTimer) return;
+
+        if (data.status === 'finished' || data.finalScore) {
+          scheduleTransition(() => {
+            updateScores(nextPlayers);
+            totalQuestions = nextTotalQuestions;
+            finalScore = data.finalScore ?? null;
+            isFinished = true;
+            currentQuestion = null;
+            resetReveal();
+            hasSubmittedCurrent = false;
+            resetAIState();
+            stopTimer();
+          });
+        } else if (data.nextQuestion && data.nextQuestion.id !== submittedQuestionId) {
+          const nextQuestion = data.nextQuestion;
+          scheduleTransition(() => {
+            currentQuestion = nextQuestion;
+            questionNumber = (data.state?.currentQuestionIndex ?? questionNumber) + 1;
+            updateScores(nextPlayers);
+            totalQuestions = nextTotalQuestions;
+            resetReveal();
+            hasSubmittedCurrent = false;
+            resetAIState();
+            startAIThinking();
+            startTimer();
+          });
+        } else {
+          resetReveal();
+          hasSubmittedCurrent = false;
+          startTimer();
+        }
+        return;
+      }
+
       const correctText = data.lastAnswerUpdate?.correctText ?? '';
       const isCorrect   = data.lastAnswerUpdate?.isCorrect ?? false;
       const nextFeedback = isTimeout
@@ -220,7 +280,7 @@
         : isCorrect ? 'Correct answer.' : `Wrong answer. Correct answer: ${correctText}`;
 
       if (data.status === 'finished' || data.finalScore) {
-        setTimeout(() => {
+        scheduleTransition(() => {
           updateScores(nextPlayers);
           totalQuestions = nextTotalQuestions;
           finalScore = data.finalScore ?? null;
@@ -228,12 +288,13 @@
           currentQuestion = null;
           feedback = nextFeedback;
           resetReveal();
+          hasSubmittedCurrent = false;
           resetAIState();
           stopTimer();
-        }, REVEAL_DELAY_MS);
+        });
       } else {
         pendingNextQuestion = data.nextQuestion ?? null;
-        setTimeout(() => {
+        scheduleTransition(() => {
           currentQuestion = pendingNextQuestion;
           pendingNextQuestion = null;
           questionNumber = (data.state?.currentQuestionIndex ?? questionNumber) + 1;
@@ -241,22 +302,25 @@
           totalQuestions = nextTotalQuestions;
           feedback = nextFeedback;
           resetReveal();
+          hasSubmittedCurrent = false;
           // Nouvelle question : relancer l'animation AI
           resetAIState();
           startAIThinking();
           startTimer();
-        }, REVEAL_DELAY_MS);
+        });
       }
     } catch (err) {
       console.error('submitAnswer error:', err);
       error = 'Erreur réseau pendant la réponse.';
       revealing = false;
+      hasSubmittedCurrent = false;
     } finally {
       loading = false;
     }
   }
 
   onDestroy(() => {
+    clearTransitionTimer();
     stopTimer();
     stopAIThinking();
   });
@@ -371,7 +435,7 @@
           <button
             type="button"
             onclick={() => submitAnswer(index)}
-            disabled={loading || revealing}
+            disabled={loading || revealing || hasSubmittedCurrent}
             class={buttonClasses(index)}
           >
             {option}

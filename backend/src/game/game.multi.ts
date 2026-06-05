@@ -195,9 +195,9 @@ export class MultiPlayerFacade {
         return await this.handleAllReady(roomId);
     }
 
-    async submitAnswer(gameId: string, selectedAnswerIndex: number, userId: string): Promise<{state: BaseGameState, 
+    async submitAnswer(gameId: string, selectedAnswerIndex: number, userId: string, expectedQuestionId?: number): Promise<{state: BaseGameState,
             lastAnswer: { playerId: string; isCorrect: boolean; correctAnswerIndex: number; correctText: string };}> {
-        return await this.multiService.submitAnswer(gameId, selectedAnswerIndex, userId);
+        return await this.multiService.submitAnswer(gameId, selectedAnswerIndex, userId, expectedQuestionId);
     }
 
     async handleReconnect(userId: string) {
