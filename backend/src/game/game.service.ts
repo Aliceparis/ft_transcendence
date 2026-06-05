@@ -68,7 +68,7 @@ export class GameService {
     /**
      * 玩家（人类）答题的核心入口管道
      */
-    async submitAnswer(gameId: string, selectedAnswerIndex: number, userId: string): Promise<GameUpdateResponse> {
+    async submitAnswer(gameId: string, selectedAnswerIndex: number, userId: string, expectedQuestionId?: number): Promise<GameUpdateResponse> {
         const gameState = await this.gameRepository.findById(gameId);
         if (!gameState) {
             throw new AppError('Game not found', ErrorCode.GAME_NOT_FOUND, 404);
@@ -81,9 +81,9 @@ export class GameService {
         // 在 AI 模式下，下层的 multiplayer.submitAnswer (即 LocalMultiPlayer)
         // 会在击打 Lua 前现场调用 `this.aiservice.predictAnswer` 计算 AI 方案，并在一发 Lua 中同时完结。
         if (gameState.mode === "MULTIPLAYER" || gameState.mode === 'AI') {
-            ({ state, lastAnswer } = await this.multiplayer.submitAnswer(gameId, selectedAnswerIndex, userId));
+            ({ state, lastAnswer } = await this.multiplayer.submitAnswer(gameId, selectedAnswerIndex, userId, expectedQuestionId));
         } else {
-            ({ state, lastAnswer } = await this.soloservice.submitAnswer(gameId, selectedAnswerIndex, userId));
+            ({ state, lastAnswer } = await this.soloservice.submitAnswer(gameId, selectedAnswerIndex, userId, expectedQuestionId));
         }
 
         // 幂等性拦截防护：如果是无意义的重复连击网络包，直接利用零开销的缓存状态退回

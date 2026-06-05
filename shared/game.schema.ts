@@ -154,6 +154,7 @@ export type GameInfo = z.infer<typeof GameInfoSchema>;
 
 export const SubmitAnswerReqSchema = z.object({
     selectedAnswerIndex: z.coerce.number().int().min(-1),
+    questionId: z.coerce.number().int().nonnegative().optional(),
     mode: z.enum(['solo', 'ai','multiplayer', 'tournament']),
     gameId: z.string().min(1),
 })
