@@ -35,7 +35,6 @@ export interface Player{
     nickname?: string;
 }
 
-
 //runtime gamestate to save in redis 
 export interface BaseGameState {
     gameId: string;
@@ -91,6 +90,13 @@ export type FinalScore = {
     ranking: Array<{playerId: string; nickname?: string; score: number; rank: number; totalTime: number}>;
 }
 
+export type LastAnswerUpdate = {
+    playerId: string;
+    isCorrect: boolean;
+    correctAnswerIndex: number;
+    correctText: string;
+}
+
 export interface GameUpdateResponse {
     gameId: string;
     mode: GameMode;
@@ -102,17 +108,11 @@ export interface GameUpdateResponse {
         startedAt?: number;
         questionStartedAt?: number;
     };
-    lastAnswerUpdate? :{
-        playerId: string;
-        isCorrect: boolean;
-        correctAnswerIndex: number;
-        correctText: string;
-    };
+    lastAnswerUpdate? :LastAnswerUpdate;
 
     nextQuestion?: PublicQuestion | null;
     finalScore?: FinalScore | null; 
 }
-
 
 export interface StartGameResult {
     gameId: string;
@@ -160,4 +160,11 @@ export type MatchResult = {
         correctAnswers: number;
         totalQuestions: number;
     }[];
+};
+
+export type AtomicAnswerTask = {
+    id: string;
+    ans: number;
+    questionId: number;
+    visibleAt?: number;
 };

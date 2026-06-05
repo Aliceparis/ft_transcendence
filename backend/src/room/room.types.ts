@@ -36,8 +36,6 @@ export type JoinRoomParams = {
     playerNickname: string; 
 }
 
-
-
 export type RoomEntryParams = {
     userId: string;
     nickname: string;

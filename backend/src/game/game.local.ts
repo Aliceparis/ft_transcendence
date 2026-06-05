@@ -3,28 +3,16 @@ import { QuestionService } from "../question/question.service";
 import { Room } from "../room/room.types";
 import { GameBaseService } from "./game.base";
 import { RedisGameRepository } from "./game.redis.repository";
-import { BaseGameState, MultiGameState, Player } from "./game.types";
+import { AtomicAnswerTask, BaseGameState, LastAnswerUpdate, MultiGameState, Player } from "./game.types";
 import { GameMode } from "@prisma/client";
 import { AIService } from "./ai";
 
-type LastAnswerUpdate = {
-    playerId: string;
-    isCorrect: boolean;
-    correctAnswerIndex: number;
-    correctText: string;
-};
-
-type AtomicAnswerTask = {
-    id: string;
-    ans: number;
-    questionId: number;
-    visibleAt?: number;
-};
-
 /**
  * LocalMultiPlayer
- * 负责本地房间向游戏状态机的初始化转换，以及驱动 Redis Lua 沙盒完成双人/多人原子答题结算。
- * 遵循 方案 3：人类交卷时现场秒杀 AI 逻辑，不产生任何异步 Timer 竞争。
+ * Responsible for the initialization transition from local lobby rooms to the game state machine,
+ * and driving the Redis Lua sandbox to complete atomic answer settlements for multiplayer matches.
+ * * Follows Strategy 3: Real-time AI resolution at the moment a human player submits their answer,
+ * eliminating any asynchronous Timer race conditions.
  */
 export class LocalMultiPlayer extends GameBaseService {
     constructor(
@@ -36,12 +24,16 @@ export class LocalMultiPlayer extends GameBaseService {
     }
 
     /**
-     * 将匹配成功的 Lobby Room 转换为分布式内存中的运行时 Live GameState 快照。
+     * Converts a successfully matched Lobby Room into a distributed, in-memory runtime Live GameState snapshot.
+     * * @param room The current matchmaking lobby room object.
+     * @param category Optional quiz category filter.
+     * @returns A Promise that resolves to the initialized BaseGameState.
+     * @throws AppError if there are fewer than 2 players in the room.
      */
     async startGame(room: Room, category?: string): Promise<BaseGameState> {
         const playerlist = Object.values(room.players);
 
-        // 核心防御：联机对战必须满足至少 2 个活跃连接
+        // Core defense: Online matches must satisfy at least 2 active connections
         if (playerlist.length < 2) {
             throw new AppError('Not enough players', ErrorCode.ROOM_PLAYER_NBR, 400);
         }
@@ -49,7 +41,7 @@ export class LocalMultiPlayer extends GameBaseService {
         const players: Record<string, Player> = {};
         let hasAIInRoom = false;
 
-        // 解包房间玩家，构建包含虚拟 AI 标签的游戏玩家档案
+        // Unpack room players and build player profiles including virtual AI flags
         for (const p of playerlist) {
             const userIdstring = String(p.userId);
             const isAIPlayer = userIdstring.startsWith("ai_");
@@ -65,7 +57,7 @@ export class LocalMultiPlayer extends GameBaseService {
 
         let state: MultiGameState;
 
-        // 分流解析：根据房间属性决定当前生成的是 AI 对战房间还是纯人类联机房间
+        // Branching analysis: Determine whether to generate an AI match room or a pure human multiplayer room based on attributes
         if (hasAIInRoom) {
             state = await this.prepareGame(players, "AI" as GameMode, { roomId: room.roomId, hostId: room.hostId, category }) as MultiGameState;
         } else {
@@ -74,19 +66,24 @@ export class LocalMultiPlayer extends GameBaseService {
 
         console.log("[Game Init Local] Successfully initialized state for room:", state.roomId);
 
-        // 锦标赛房间上下文穿透
+        // Tournament room context penetration
         if (room.tournamentId) {
             state.tournamentId = room.tournamentId;
         }
 
-        // 完美序列化存入 Redis 内存区
+        // Serialize perfectly and store into the Redis memory area
         await this.gamerepository.create(state);
         return state;
     }
 
     /**
-     * 答题管道唯一入口。
-     * 方案 3 核心演进：在击打 Lua 脚本之前，预先判定并完成 AI 决策的同步装载。
+     * The unique entry pipeline for answer submissions.
+     * Strategy 3 Core Evolution: Pre-evaluate and synchronously load the AI's decision payload before executing the Lua script.
+     * * @param gameId The unique identifier of the active game.
+     * @param selectedAnswerIndex The option index selected by the submitting user.
+     * @param userId The unique identifier of the submitting user.
+     * @returns An object containing the updated game state and metadata regarding the last answer update.
+     * @throws AppError if the game state or current question cannot be found.
      */
     async submitAnswer(gameId: string, selectedAnswerIndex: number, userId: string, expectedQuestionId?: number): Promise<{
         state: BaseGameState;
@@ -94,7 +91,7 @@ export class LocalMultiPlayer extends GameBaseService {
     }> {
         console.log(`[submit] game=${gameId}, user=${userId}, answer=${selectedAnswerIndex}`);
 
-        // 1. 提取当前第一线快照，用以计算 AI 是否需要“悄悄做预判”
+        // 1. Extract the current frontline snapshot to evaluate if the AI needs to make a pre-calculation silently
         const currentGameState = await this.gamerepository.findById(gameId);
         if (!currentGameState) {
             throw new AppError('Game not found', ErrorCode.GAME_NOT_FOUND, 404);
@@ -123,14 +120,14 @@ export class LocalMultiPlayer extends GameBaseService {
         }];
         const isAIGame = currentGameState.mode === 'AI';
 
-        // 🌟 方案 3 核心注入点：如果当前是 AI 模式且游戏未完结
+        // Strategy 3 Core Injection: If the current mode is AI and the game is not yet finished
         if (isAIGame && !currentGameState.isFinished) {
             const aiId = Object.keys(currentGameState.players).find(id => currentGameState.players[id].isAI);
             const aiPlayer = aiId ? currentGameState.players[aiId] : null;
 
-            // 只有当 AI 在当前这一题依然处于未答（playing）状态时，军师（AIService）才会现身出谋划策
+            // The AIService strategist will only step in if the AI is still in a 'playing' state for the current question
             if (aiId && aiPlayer && aiPlayer.status === 'playing') {
-                // 调用纯净的同步预测函数，算出 AI 答案和隐藏解封时间戳
+                // Invoke the pure synchronous prediction function to calculate the AI answer and hidden unlock timestamp
                 const aiPayload = this.aiservice.predictAnswer(currentGameState, aiId);
                 if (aiPayload.questionId === currentQuestion.id) {
                     tasks.push({
@@ -143,21 +140,21 @@ export class LocalMultiPlayer extends GameBaseService {
             }
         }
 
-        // 2. 【关键修正】：将人类答案和 AI 预判答案作为统一 tasks 原子拍入 Lua 脚本
+        // 2. Critical Fix: Package both the human player's answer and the AI's predicted answer into unified atomic tasks for the Lua script
         const result = await this.gamerepository.submitanswerAtomic(
             gameId,
             tasks,
             Date.now()
         );
 
-        // 3. 基础空值及状态未找到边界防御
+        // 3. Basic null value and state-not-found boundary defense
         if (!result || result.error === "STATE_NOT_FOUND") {
             throw new AppError('Game not found', ErrorCode.GAME_NOT_FOUND, 404);
         }
 
-        // 4. 精准识别 Lua 返回的冲突状态，返回给上层 GameService 充当后端内部交通信号灯
+        // 4. Precisely identify conflict states returned by Lua, serving as internal traffic lights for the upper GameService layer
         if (result.error === "ALREADY_ANSWERED") {
-            // 幂等性拦截：说明用户狂点了。duplicated 信号可以让上层直接短路，不重复做外部触发
+            // Idempotency interception: Indicates the user triggered multiple clicks. The duplicated signal allows the upper layer to short-circuit without repeating external side-effects.
             return {
                 state: result.state,
                 lastAnswer: {
@@ -169,7 +166,7 @@ export class LocalMultiPlayer extends GameBaseService {
             };
         }
         if (result.error === "GAME_FINISHED" || result.error === "NO_QUESTION") {
-            // 过期忽略拦截：说明答题卡秒踩中了切题临界点，忽略多余逻辑
+            // Expiration interceptor: Indicates the submission happened right during a question transition boundary. Safely ignore redundant logic.
             return {
                 state: result.state,
                 lastAnswer: {
@@ -181,7 +178,7 @@ export class LocalMultiPlayer extends GameBaseService {
             };
         }
 
-        // 5. 组装返回给上层单入口协调者（GameService）的元数据
+        // 5. Assemble metadata to return to the single-entry coordinator (GameService)
         const state = result.state as BaseGameState;
         const roundResolved = state.isFinished
             || state.currentQuestionIndex !== currentGameState.currentQuestionIndex
