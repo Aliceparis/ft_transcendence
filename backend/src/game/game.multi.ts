@@ -2,7 +2,7 @@ import { LocalMultiPlayer } from "./game.local";
 import { MatchService } from "./match/match.service";
 import { Session } from "inspector";
 import { SessionService } from "./session.service";
-import { BaseGameState,  GameState, GameUpdateResponse, MatchPlayer, SetReadyResult } from "./game.types";
+import { BaseGameState,  GameState, GameUpdateResponse, MatchPlayer, MultiGameState, Player, SetReadyResult } from "./game.types";
 import { Namespace } from "socket.io";
 import { GameService } from "./game.service";
 import { RoomService } from "../room/room.service";
@@ -267,9 +267,9 @@ export class MultiPlayerFacade {
         return await this.handleAllReady(roomId);
     }
 
-    async submitAnswer(gameId: string, selectedAnswerIndex: number, userId: string): Promise<{state: BaseGameState, 
+    async submitAnswer(gameId: string, selectedAnswerIndex: number, userId: string, expectedQuestionId?: number): Promise<{state: BaseGameState,
             lastAnswer: { playerId: string; isCorrect: boolean; correctAnswerIndex: number; correctText: string };}> {
-        return await this.multiService.submitAnswer(gameId, selectedAnswerIndex, userId);
+        return await this.multiService.submitAnswer(gameId, selectedAnswerIndex, userId, expectedQuestionId);
     }
 
     async handleReconnect(userId: string) {
@@ -314,6 +314,26 @@ export class MultiPlayerFacade {
                 })
             })
         )
+    }
+
+    async createAIGame(userId: string, nickname: string, category?: string): Promise<MultiGameState>{
+        //1. create a room for this session
+        //2. init player with the ia 
+        const humanId = String(userId);
+        const aiId = `ai_${crypto.randomUUID()}`;
+
+        const room = await this.roomService.createRoom({
+            hostId: humanId,
+            hostNickname: nickname,
+            maxPlayers: 2,
+            players:[
+                {userId: humanId, nickname},
+                {userId: aiId, nickname: 'AI'}
+            ],
+            AIplayerIds: [aiId]
+        })
+        const state = await this.multiService.startGame(room, category);
+        return state as MultiGameState
     }
 }
 
