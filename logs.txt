@@ -1,5 +1,11 @@
 // APRES FIX, version du code actuelle
- prisma db push --schema=./prisma/schema.prisma
+
+Waiting for Redis...
+Redis is ready
+Database is up!
+
+> backend@1.0.0 db:migrate
+> prisma db push --schema=./prisma/schema.prisma
 
 warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
 For more information, see: https://pris.ly/prisma-config
@@ -97,6 +103,179 @@ roomId:  59143a79-9c6b-45b6-898b-0f62921c4b11
 [submit] game=2f7ff0a0-021d-4e1c-bb91-1b95c3e4dd9d, user=8, answer=0
 [submit] game=050be2a3-f621-487f-ab00-fc53c801fa53, user=6, answer=0
 [submit] game=050be2a3-f621-487f-ab00-fc53c801fa53, user=2, answer=2
+[submit] game=050be2a3-f621-487f-ab00-fc53c801fa53, user=6, answer=0
+[submit] game=2f7ff0a0-021d-4e1c-bb91-1b95c3e4dd9d, user=8, answer=2
+[submit] game=050be2a3-f621-487f-ab00-fc53c801fa53, user=2, answer=0
+[submit] game=050be2a3-f621-487f-ab00-fc53c801fa53, user=6, answer=1
+[submit] game=050be2a3-f621-487f-ab00-fc53c801fa53, user=2, answer=1
+[TOURNEY] matchFinished t=6b7f702e-6698-4dd7-8bb6-88eff409683f game=050be2a3-f621-487f-ab00-fc53c801fa53 winner=2
+[TOURNEY] FORFEIT (disconnect) t=6b7f702e-6698-4dd7-8bb6-88eff409683f user=6
+[WS] connect user=6 socket=FDPEl4676xkkOiS4AAAj
+[WS] reconnect user=6 status=idle room=- game=- tournament=- socket=FDPEl4676xkkOiS4AAAj
+[WS] connect user=6 socket=Hege0BimJm3pXyAtAAAl
+[WS] reconnect user=6 status=idle room=- game=- tournament=- socket=Hege0BimJm3pXyAtAAAl
+[TOURNEY] setReady room=325eb2f7-8833-4174-94e9-f0dfa209e29c user=6=true changed=true allReady=false status=waiting [2:- 6:R]
+[TOURNEY] setReady room=325eb2f7-8833-4174-94e9-f0dfa209e29c user=2=true changed=true allReady=true status=starting [2:R 6:R]
+[Game Init Local] Successfully initialized state for room, mode:  MULTIPLAYER
+roomId:  325eb2f7-8833-4174-94e9-f0dfa209e29c
+[TOURNEY] game_started room=325eb2f7-8833-4174-94e9-f0dfa209e29c game=4257a788-74d1-4765-acc5-95282add0280 tournament=- playersInRoom=2 socketsInRoom=2 sockets=[Hege0BimJm3pXyAtAAAl,h5IaRG5I_P3cCNvrAAAh]
+[submit] game=4257a788-74d1-4765-acc5-95282add0280, user=6, answer=3
+[submit] game=4257a788-74d1-4765-acc5-95282add0280, user=2, answer=3
+[submit] game=4257a788-74d1-4765-acc5-95282add0280, user=6, answer=1
+[submit] game=4257a788-74d1-4765-acc5-95282add0280, user=2, answer=3
+[submit] game=4257a788-74d1-4765-acc5-95282add0280, user=6, answer=2
+[submit] game=4257a788-74d1-4765-acc5-95282add0280, user=2, answer=2
+[submit] game=4257a788-74d1-4765-acc5-95282add0280, user=6, answer=1
+[submit] game=4257a788-74d1-4765-acc5-95282add0280, user=2, answer=2
+[submit] game=4257a788-74d1-4765-acc5-95282add0280, user=6, answer=1
+[submit] game=4257a788-74d1-4765-acc5-95282add0280, user=2, answer=2
+[submit] game=4257a788-74d1-4765-acc5-95282add0280, user=6, answer=1
+[submit] game=4257a788-74d1-4765-acc5-95282add0280, user=2, answer=3
+[submit] game=4257a788-74d1-4765-acc5-95282add0280, user=6, answer=1
+[submit] game=4257a788-74d1-4765-acc5-95282add0280, user=2, answer=1
+[submit] game=2f7ff0a0-021d-4e1c-bb91-1b95c3e4dd9d, user=8, answer=0
+[submit] game=4257a788-74d1-4765-acc5-95282add0280, user=6, answer=2
+[submit] game=4257a788-74d1-4765-acc5-95282add0280, user=2, answer=2
+[submit] game=4257a788-74d1-4765-acc5-95282add0280, user=2, answer=0
+[submit] game=4257a788-74d1-4765-acc5-95282add0280, user=6, answer=0
+[submit] game=4257a788-74d1-4765-acc5-95282add0280, user=2, answer=0
+[submit] game=4257a788-74d1-4765-acc5-95282add0280, user=6, answer=0
+[WS] connect user=6 socket=AKrikZTd_zAqOsXiAAAn
+[WS] reconnect user=6 status=idle room=- game=- tournament=- socket=AKrikZTd_zAqOsXiAAAn
+[TOURNEY] matchFinished t=6b7f702e-6698-4dd7-8bb6-88eff409683f game=2f7ff0a0-021d-4e1c-bb91-1b95c3e4dd9d winner=8
+[TOURNEY] createMatchRoom t=6b7f702e-6698-4dd7-8bb6-88eff409683f round=2 slot=0 room=ee035cba-634d-4a44-a5a8-58168b970777 p1=8 p2=2
+[TOURNEY]   join p=8 room=ee035cba-634d-4a44-a5a8-58168b970777 socketId=3ZTonUfZ3HBKlhB3AAAV attempts=1 sockObjFound=true -> JOINED
+[TOURNEY]   join p=2 room=ee035cba-634d-4a44-a5a8-58168b970777 NO socketId in Redis after 5 attempts — player will MISS game_started (room broadcast) and get bounced to bracket
+[WS] connect user=3 socket=2tRUzD4M04LsLNKgAAAr
+[WS] connect user=3 socket=QCG1v7hcH6PeAOP1AAAs
+[WS] reconnect user=3 status=in_tournament room=- game=- tournament=6b7f702e-6698-4dd7-8bb6-88eff409683f socket=2tRUzD4M04LsLNKgAAAr
+[WS] reconnect user=3 status=in_tournament room=- game=- tournament=6b7f702e-6698-4dd7-8bb6-88eff409683f socket=QCG1v7hcH6PeAOP1AAAs
+[WS] connect user=3 socket=zjpWjmNEoMPwLSr3AAAw
+[WS] connect user=3 socket=ePHvsUQ477LwiZvIAAAx
+[WS] reconnect user=3 status=in_tournament room=- game=- tournament=6b7f702e-6698-4dd7-8bb6-88eff409683f socket=zjpWjmNEoMPwLSr3AAAw
+[WS] reconnect user=3 status=in_tournament room=- game=- tournament=6b7f702e-6698-4dd7-8bb6-88eff409683f socket=ePHvsUQ477LwiZvIAAAx
+[WS] connect user=3 socket=5mdD-0ELmKhMquoGAAA1
+[WS] connect user=3 socket=zPePUPDP5SGVKl2XAAA2
+[WS] reconnect user=3 status=in_tournament room=- game=- tournament=6b7f702e-6698-4dd7-8bb6-88eff409683f socket=5mdD-0ELmKhMquoGAAA1
+[WS] reconnect user=3 status=in_tournament room=- game=- tournament=6b7f702e-6698-4dd7-8bb6-88eff409683f socket=zPePUPDP5SGVKl2XAAA2
+[WS] connect user=3 socket=kVNqvNQQcvoiFA8sAAA6
+[WS] connect user=3 socket=1UClTQyVyl60Mc8IAAA7
+[WS] reconnect user=3 status=in_tournament room=- game=- tournament=6b7f702e-6698-4dd7-8bb6-88eff409683f socket=kVNqvNQQcvoiFA8sAAA6
+[WS] reconnect user=3 status=in_tournament room=- game=- tournament=6b7f702e-6698-4dd7-8bb6-88eff409683f socket=1UClTQyVyl60Mc8IAAA7
+[WS] connect user=3 socket=bAd8AEX2FywzwNHwAAA_
+[WS] connect user=3 socket=9mf9ok5RxoOFt9xaAABA
+[WS] reconnect user=3 status=in_tournament room=- game=- tournament=6b7f702e-6698-4dd7-8bb6-88eff409683f socket=bAd8AEX2FywzwNHwAAA_
+[WS] reconnect user=3 status=in_tournament room=- game=- tournament=6b7f702e-6698-4dd7-8bb6-88eff409683f socket=9mf9ok5RxoOFt9xaAABA
+[WS] connect user=3 socket=NlA51o45dgoyfiLSAABE
+[WS] connect user=3 socket=3TJjFtjwPbFBHkEEAABF
+[WS] reconnect user=3 status=in_tournament room=- game=- tournament=6b7f702e-6698-4dd7-8bb6-88eff409683f socket=NlA51o45dgoyfiLSAABE
+[WS] reconnect user=3 status=in_tournament room=- game=- tournament=6b7f702e-6698-4dd7-8bb6-88eff409683f socket=3TJjFtjwPbFBHkEEAABF
+[WS] connect user=3 socket=Dvlb9ZNwamqJ1WDJAABJ
+[WS] connect user=3 socket=CqU9eEVwMHSZThFFAABK
+[WS] reconnect user=3 status=in_tournament room=- game=- tournament=6b7f702e-6698-4dd7-8bb6-88eff409683f socket=Dvlb9ZNwamqJ1WDJAABJ
+[WS] reconnect user=3 status=in_tournament room=- game=- tournament=6b7f702e-6698-4dd7-8bb6-88eff409683f socket=CqU9eEVwMHSZThFFAABK
+[WS] user=3 reconnect/2nd-socket new=UUJ8fGVYcggkXEaIAABO REPLACES prev=CqU9eEVwMHSZThFFAABK (same account in 2 places? cookie shared?)
+[WS] user=3 reconnect/2nd-socket new=ccbUPSy0DHwhmeDwAABP REPLACES prev=CqU9eEVwMHSZThFFAABK (same account in 2 places? cookie shared?)
+[WS] connect user=3 socket=UUJ8fGVYcggkXEaIAABO
+[WS] connect user=3 socket=ccbUPSy0DHwhmeDwAABP
+[WS] reconnect user=3 status=in_tournament room=- game=- tournament=6b7f702e-6698-4dd7-8bb6-88eff409683f socket=UUJ8fGVYcggkXEaIAABO
+[WS] reconnect user=3 status=in_tournament room=- game=- tournament=6b7f702e-6698-4dd7-8bb6-88eff409683f socket=ccbUPSy0DHwhmeDwAABP
+[TOURNEY] readyTimer fired room=ee035cba-634d-4a44-a5a8-58168b970777 tournament=6b7f702e-6698-4dd7-8bb6-88eff409683f notReady=2 [2:- 8:-]
+[TOURNEY] READY-TIMEOUT (forfeit) t=6b7f702e-6698-4dd7-8bb6-88eff409683f room=ee035cba-634d-4a44-a5a8-58168b970777 notReady=[2,8] -> players bounced to bracket
+[Game Init Local] Successfully initialized state for room, mode:  AI
+roomId:  aacda306-b814-46c9-b4a2-57f8bb761c3f
+[submit] game=9dec0da0-e9f9-4b67-b67d-bb77c1fdf242, user=6, answer=0
+result IA:  {
+  aiId: 'ai_91c2b3d8-57ca-4fc7-9d88-77eebfd9d488',
+  questionId: 504,
+  selectedAnswerIndex: 2,
+  visibleAt: 1780936233000
+}
+iscorrect:  false
+answer:  0
+[submit] game=9dec0da0-e9f9-4b67-b67d-bb77c1fdf242, user=6, answer=2
+result IA:  {
+  aiId: 'ai_91c2b3d8-57ca-4fc7-9d88-77eebfd9d488',
+  questionId: 425,
+  selectedAnswerIndex: 2,
+  visibleAt: 1780936238110
+}
+iscorrect:  true
+answer:  2
+[submit] game=9dec0da0-e9f9-4b67-b67d-bb77c1fdf242, user=6, answer=3
+result IA:  {
+  aiId: 'ai_91c2b3d8-57ca-4fc7-9d88-77eebfd9d488',
+  questionId: 312,
+  selectedAnswerIndex: 0,
+  visibleAt: 1780936244780
+}
+iscorrect:  false
+answer:  3
+[submit] game=9dec0da0-e9f9-4b67-b67d-bb77c1fdf242, user=6, answer=1
+result IA:  {
+  aiId: 'ai_91c2b3d8-57ca-4fc7-9d88-77eebfd9d488',
+  questionId: 394,
+  selectedAnswerIndex: 2,
+  visibleAt: 1780936249483
+}
+iscorrect:  false
+answer:  1
+[submit] game=9dec0da0-e9f9-4b67-b67d-bb77c1fdf242, user=6, answer=0
+result IA:  {
+  aiId: 'ai_91c2b3d8-57ca-4fc7-9d88-77eebfd9d488',
+  questionId: 484,
+  selectedAnswerIndex: 0,
+  visibleAt: 1780936258012
+}
+iscorrect:  true
+answer:  0
+[submit] game=9dec0da0-e9f9-4b67-b67d-bb77c1fdf242, user=6, answer=0
+result IA:  {
+  aiId: 'ai_91c2b3d8-57ca-4fc7-9d88-77eebfd9d488',
+  questionId: 586,
+  selectedAnswerIndex: 0,
+  visibleAt: 1780936261901
+}
+iscorrect:  true
+answer:  0
+[submit] game=9dec0da0-e9f9-4b67-b67d-bb77c1fdf242, user=6, answer=3
+result IA:  {
+  aiId: 'ai_91c2b3d8-57ca-4fc7-9d88-77eebfd9d488',
+  questionId: 738,
+  selectedAnswerIndex: 3,
+  visibleAt: 1780936266290
+}
+iscorrect:  true
+answer:  3
+[submit] game=9dec0da0-e9f9-4b67-b67d-bb77c1fdf242, user=6, answer=0
+result IA:  {
+  aiId: 'ai_91c2b3d8-57ca-4fc7-9d88-77eebfd9d488',
+  questionId: 550,
+  selectedAnswerIndex: 0,
+  visibleAt: 1780936271872
+}
+iscorrect:  true
+answer:  0
+[submit] game=9dec0da0-e9f9-4b67-b67d-bb77c1fdf242, user=6, answer=1
+[IA] Score ceiling triggered! Current score 5 reached max allowed 5. Forcing an incorrect answer.
+result IA:  {
+  aiId: 'ai_91c2b3d8-57ca-4fc7-9d88-77eebfd9d488',
+  questionId: 583,
+  selectedAnswerIndex: 2,
+  visibleAt: 1780936278506
+}
+iscorrect:  false
+answer:  1
+[submit] game=9dec0da0-e9f9-4b67-b67d-bb77c1fdf242, user=6, answer=3
+[IA] Score ceiling triggered! Current score 5 reached max allowed 5. Forcing an incorrect answer.
+result IA:  {
+  aiId: 'ai_91c2b3d8-57ca-4fc7-9d88-77eebfd9d488',
+  questionId: 412,
+  selectedAnswerIndex: 0,
+  visibleAt: 1780936285499
+}
+iscorrect:  false
+answer:  3
 
 // AVANT FIX : prednre les ifnormations dans le bracket directemetn vai requete http
 bash-5.2$ podman logs 9e68d0927496
