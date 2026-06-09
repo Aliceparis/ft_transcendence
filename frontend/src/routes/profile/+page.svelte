@@ -121,6 +121,7 @@
 				return;
 			}
 			await invalidateAll();
+			form.reset();
 			showToast("Your username has been successfully changed");
 		}
 		catch (error){
@@ -174,7 +175,8 @@
 				return;
 			}
 			await invalidateAll();
-			showToast("Your password has been successfully changed.");
+			form.reset();
+			showToast("Your password has been successfully changed. Please log in again.");
 		}
 		catch (error){
 			console.error('Error handlePasswordSubmission: ', error);
@@ -232,15 +234,15 @@
 		<h3 class="text-lg text-pink-500 mb-4">Change password</h3>
 		<!-- New password shields -->
 		<form onsubmit={handlePasswordSubmission}>
-			<input type="password" name="oldpassword" placeholder="Old password" class="w-full p-2 mb-2 bg-slate-900 border border-slate-700 rounded-md focus:outline-none focus:ring-1 transition focus:ring-indigo-500 focus:border-indigo-500" />
+			<input type="password" name="oldpassword" placeholder="Old password" autocomplete="off" class="w-full p-2 mb-2 bg-slate-900 border border-slate-700 rounded-md focus:outline-none focus:ring-1 transition focus:ring-indigo-500 focus:border-indigo-500" />
 			{#if errors.oldpassword}
 				<p class="text-red-500 text-xs mb-2">{errors.oldpassword}</p>
 			{/if}
-			<input type="password" name="newpassword" placeholder="New password" class="w-full p-2 mb-2 bg-slate-900 border border-slate-700 rounded-md focus:outline-none focus:ring-1 transition focus:ring-indigo-500 focus:border-indigo-500" />
+			<input type="password" name="newpassword" placeholder="New password" autocomplete="new-password" class="w-full p-2 mb-2 bg-slate-900 border border-slate-700 rounded-md focus:outline-none focus:ring-1 transition focus:ring-indigo-500 focus:border-indigo-500" />
 			{#if errors.newpassword}
 				<p class="text-red-500 text-xs mb-2">{errors.newpassword}</p>
 			{/if}
-			<input type="password" name="confirmpassword" placeholder="Confirm new password" class="w-full p-2 mb-2 bg-slate-900 border border-slate-700 rounded-md focus:outline-none focus:ring-1 transition focus:ring-indigo-500 focus:border-indigo-500" />
+			<input type="password" name="confirmpassword" placeholder="Confirm new password" autocomplete="new-password" class="w-full p-2 mb-2 bg-slate-900 border border-slate-700 rounded-md focus:outline-none focus:ring-1 transition focus:ring-indigo-500 focus:border-indigo-500" />
 			{#if errors.confirmpd}
 				<p class="text-red-500 text-xs mb-2">{errors.confirmpd}</p>
 			{/if}

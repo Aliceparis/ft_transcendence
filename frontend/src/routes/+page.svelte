@@ -3,9 +3,14 @@
 	import { showToast } from '$lib/shared/toast.svelte';
 	import { onMount } from 'svelte'
 	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
+
+	let props = $props();
 
 	// Shows a notification after logging out.
 	onMount(() => {
+		if (props.data.connected)
+			goto('/modes');
 		page.url.searchParams.get('logout') && showToast("You are now disconnected, see you soon.");
 	});
 
@@ -15,7 +20,6 @@
 		username: "",
 		password: ""
 	});
-
 
 	/*
 	* Handles form submission:
@@ -83,21 +87,21 @@
 		<form onsubmit={handleSubmit} class="mt-8">
 			<!-- Mail shield -->
 			<label for="email" class="block mb-1 font-medium text-pink-500">Email address</label>
-			<input type="email" id="email" name="email" placeholder="Email" class="w-full p-2 mb-2 bg-slate-900 border border-slate-700 rounded-md focus:outline-none focus:ring-1 transition focus:ring-indigo-500 focus:border-indigo-500">
+			<input type="email" id="email" name="email" placeholder="Email" autocomplete="email" class="w-full p-2 mb-2 bg-slate-900 border border-slate-700 rounded-md focus:outline-none focus:ring-1 transition focus:ring-indigo-500 focus:border-indigo-500">
 			{#if errors.email}
 				<p class="text-red-500 text-xs mb-2">{errors.email}</p>
 			{/if}
 
 			<!-- Username shield -->
 			<label for="username" class="block mb-1 font-medium text-pink-500">Username</label>
-			<input type="text" id="username" name="username" placeholder="Username" class="w-full p-2 mb-2 bg-slate-900 border border-slate-700 rounded-md focus:outline-none focus:ring-1 transition focus:ring-indigo-500 focus:border-indigo-500">
+			<input type="text" id="username" name="username" placeholder="Username" autocomplete="username" class="w-full p-2 mb-2 bg-slate-900 border border-slate-700 rounded-md focus:outline-none focus:ring-1 transition focus:ring-indigo-500 focus:border-indigo-500">
 			{#if errors.username}
 				<p class="text-red-500 text-xs mb-2">{errors.username}</p>
 			{/if}
 
 			<!-- Password shield -->
 			<label for="password" class="block mb-1 font-medium text-pink-500">Password</label>
-			<input type="password" id="password" name="password" placeholder="Password" class="w-full p-2 mb-2 bg-slate-900 border border-slate-700 rounded-md focus:outline-none focus:ring-1 transition focus:ring-indigo-500 focus:border-indigo-500">
+			<input type="password" id="password" name="password" placeholder="Password" autocomplete="new-password" class="w-full p-2 mb-2 bg-slate-900 border border-slate-700 rounded-md focus:outline-none focus:ring-1 transition focus:ring-indigo-500 focus:border-indigo-500">
 			{#if errors.password}
 				<p class="text-red-500 text-xs mb-2">{errors.password}</p>
 			{/if}
