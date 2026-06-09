@@ -15,9 +15,15 @@ export class PrismaGameRepository {
         });
 
             // SOLO has no opponent, so the single player is always ranked #1 and
-            // would otherwise be credited a "win" for every finished game. A win
-            // only makes sense when there's someone to beat (AI / multiplayer).
-            const countsWins = result.mode !== GameMode.SOLO;
+            // can't "beat" anyone. Instead of crediting (or never crediting) a win
+            // for every finished solo game, a solo win is earned on PERFORMANCE:
+            // the player must reach at least SOLO_WIN_THRESHOLD correct answers.
+            // For AI / multiplayer a win still means actually finishing first.
+            const SOLO_WIN_THRESHOLD = 5;
+            const isWin = (p: { userId: string; correctAnswers: number }): boolean =>
+                result.mode === GameMode.SOLO
+                    ? p.correctAnswers >= SOLO_WIN_THRESHOLD
+                    : result.winnerId === p.userId;
 
             await tx.matchResult.create({
                 data: {
@@ -41,9 +47,7 @@ export class PrismaGameRepository {
                         data: {
                             played: { increment: 1 },
                             score: { increment: p.correctAnswers },
-                            wins: countsWins && result.winnerId === p.userId
-                                ? { increment: 1 }
-                                : undefined,
+                            wins: isWin(p) ? { increment: 1 } : undefined,
                         }
                     })
                 )

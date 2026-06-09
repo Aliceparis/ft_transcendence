@@ -33,10 +33,14 @@
     players: Record<string, SpectatorPlayer>;
   };
 
-  // Keep this short: the server arms the 45s readiness deadline when the match
+  // Keep this short: the server arms the 60s readiness deadline when the match
   // room is created, so a long pre-redirect would eat into the finalist's time
   // to click "Ready".
   const REDIRECT_DELAY_MS = 1500;
+  // For the FINAL, leave more time on the "you're in the final vs X" announcement
+  // screen before sending players into the match room (still well under the 60s
+  // readiness deadline).
+  const FINAL_REDIRECT_DELAY_MS = 6500;
   const tournamentId = $derived(page.params.tournamentId);
   let bracket = $state<PublicBracketView | null>(null);
   let myUserId = $state('');
@@ -61,11 +65,11 @@
   // socket events were lost still discovers their 'ready' room and gets redirected.
   let bracketPoll: ReturnType<typeof setInterval> | null = null;
 
-  function scheduleRedirect(roomId: string, opponent?: string) {
+  function scheduleRedirect(roomId: string, opponent?: string, delayMs: number = REDIRECT_DELAY_MS) {
     if (redirectRoomId) return; // already scheduled
     redirectRoomId = roomId;
     redirectOpponent = opponent ?? null;
-    redirectCountdown = Math.ceil(REDIRECT_DELAY_MS / 1000);
+    redirectCountdown = Math.ceil(delayMs / 1000);
     redirectInterval = setInterval(() => {
       redirectCountdown -= 1;
       if (redirectCountdown <= 0) {
@@ -172,7 +176,9 @@
       sessionStorage.setItem('mp_room_players', JSON.stringify(r.players));
       if (bracket) sessionStorage.setItem('current_tournament_id', bracket.tournamentId);
     } catch {}
-    scheduleRedirect(r.roomId, r.opponentNickname);
+    // Give finalists a longer look at the final-announcement table.
+    const isFinal = !!bracket?.matches.find(m => m.round === 2 && m.roomId === r.roomId);
+    scheduleRedirect(r.roomId, r.opponentNickname, isFinal ? FINAL_REDIRECT_DELAY_MS : REDIRECT_DELAY_MS);
   }
 
   function setupListeners() {
@@ -229,7 +235,8 @@
         sessionStorage.setItem('mp_room_players', JSON.stringify(payload.players ?? []));
         sessionStorage.setItem('current_tournament_id', payload.tournamentId);
       } catch {}
-      scheduleRedirect(payload.roomId, payload.opponentNickname);
+      scheduleRedirect(payload.roomId, payload.opponentNickname,
+        payload.round === 2 ? FINAL_REDIRECT_DELAY_MS : REDIRECT_DELAY_MS);
     });
 
     socket.on('tournament_finished', (payload: { tournamentId: string; bracket: PublicBracketView; winnerId: string; ranking: string[] }) => {
