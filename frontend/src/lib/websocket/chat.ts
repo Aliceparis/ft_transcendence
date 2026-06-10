@@ -19,16 +19,16 @@ function createWS() {
     });
 
 	// socket.on('connect', () => {
-    //   console.log(`✅ chat WS connected, id: ${socket.id}`);
+    //   console.log(`chat WS connected, id: ${socket.id}`);
     // });
 
     // socket.on('connect_error', (err) => {
-    //     console.log(`❌ chat WS connect_error: ${err.message}`);
+    //     console.log(`chat WS connect_error: ${err.message}`);
 	// 	console.trace();
     // });
 
     // socket.onAny((event, ...args) => {
-    //     console.log(`📨 event: ${event}`, JSON.stringify(args));
+    //     console.log(`event: ${event}`, JSON.stringify(args));
     // });
 
 	return {

@@ -131,11 +131,13 @@
 					<span class="text-white font-medium">{request.friend.id === data.user.id ? request.user.username : request.friend.username}</span>
 				</div>
 				
-				<!-- Accept friendship request button -->
-				<button onclick={() => acceptFriendship(request)} class="cursor-pointer px-3 py-1 text-sm font-medium text-slate-200 bg-slate-500 rounded-md hover:bg-slate-600">Accept</button>
-
-				<!-- Denied friendship request button -->
-				<button onclick={() => rejectFriendship(request)} class="cursor-pointer px-3 py-1 text-sm font-medium text-slate-200 bg-red-500 rounded-md hover:bg-red-600">Denied</button>
+				<!-- Buttons -->
+				<div class="flex flex-col sm:flex-row items-center gap-3">
+					<!-- Accept friendship request -->
+					<button onclick={() => acceptFriendship(request)} class="w-full sm:w-auto cursor-pointer px-3 py-1 text-sm font-medium text-slate-200 bg-slate-500 rounded-md hover:bg-slate-600">Accept</button>
+					<!-- Denied friendship request -->
+					<button onclick={() => rejectFriendship(request)} class="w-full sm:w-auto cursor-pointer px-3 py-1 text-sm font-medium text-slate-200 bg-red-500 rounded-md hover:bg-red-600">Denied</button>
+				</div>
 			</div>
 		{:else}
 			
@@ -158,11 +160,11 @@
 				</div>
 
 				<!-- Buttons -->
-				<div class="flex items-center gap-3">
+				<div class="flex flex-col sm:flex-row items-center gap-3">
 					<!-- Profile -->
-					<button onclick={() => goto(`/profile/${ friend.friend.id === data.user.id ? friend.user.username : friend.friend.username }`)} type="submit" class="cursor-pointer px-3 py-1 text-sm font-medium text-slate-200 bg-slate-500 rounded-md hover:bg-slate-600">Profile</button>
+					<button onclick={() => goto(`/profile/${ friend.friend.id === data.user.id ? friend.user.username : friend.friend.username }`)} type="submit" class="w-full sm:w-auto cursor-pointer px-3 py-1 text-sm font-medium text-slate-200 bg-slate-500 rounded-md hover:bg-slate-600">Profile</button>
 					<!-- Chat -->
-					<button onclick={() => openConversation(friend)} class="cursor-pointer px-3 py-1 text-sm font-medium text-slate-200 bg-slate-500 rounded-md hover:bg-slate-600">Chat
+					<button onclick={() => openConversation(friend)} class="w-full sm:w-auto cursor-pointer px-3 py-1 text-sm font-medium text-slate-200 bg-slate-500 rounded-md hover:bg-slate-600">Chat
 						{#if $unreadMap[String(friend.friend.id === data.user.id ? friend.user.id : friend.friend.id)] > 0}
 							<span class="inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-blue-500 rounded-full ml-1">
 								{$unreadMap[String(friend.friend.id === data.user.id ? friend.user.id : friend.friend.id)]}

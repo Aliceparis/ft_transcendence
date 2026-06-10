@@ -13,7 +13,7 @@ async function main() {
   await contract.waitForDeployment();
 
   const address = await contract.getAddress();
-  console.log("\n✅ TournamentScores deployed at:", address);
+  console.log("\nTournamentScores deployed at:", address);
   console.log("\nAdd this to your backend .env:");
   console.log(`CHAIN_CONTRACT_ADDRESS=${address}`);
   if (network.name === "fuji") {

@@ -52,10 +52,8 @@ export class MultiPlayerFacade {
      */
     async handleAllReady(roomId: string): Promise<SetReadyResult>{
         const room = await this.roomService.getRoom(roomId);
-        if (!room || room.status !== "starting") {
-            console.log(`[TOURNEY] handleAllReady room=${roomId} bail (room=${!!room} status=${room?.status})`);
+        if (!room || room.status !== "starting")
             return {allReady: false};
-        }
 
         // short-lived lock so two concurrent "all ready" triggers can't both start the game
         const lockKey = `lock:game-start:${roomId}`;
@@ -99,7 +97,7 @@ export class MultiPlayerFacade {
             // the match resolves without them. This is the remote-only symptom.
             const roomMembers = this.gameNs.adapter.rooms.get(roomId);
             const memberIds = roomMembers ? Array.from(roomMembers) : [];
-            console.log(`[TOURNEY] game_started room=${roomId} game=${response.gameId} tournament=${room.tournamentId ?? '-'} playersInRoom=${Object.keys(room.players).length} socketsInRoom=${memberIds.length} sockets=[${memberIds.join(',')}]`);
+
             if (memberIds.length < Object.keys(room.players).length) {
                 console.warn(`[TOURNEY] !!! room=${roomId} has FEWER sockets than players — someone will MISS game_started and be bounced to the bracket`);
             }
@@ -268,15 +266,12 @@ export class MultiPlayerFacade {
     async handleReadyTimeout(roomId: string): Promise<void> {
         const room = await this.roomService.getRoom(roomId);
         // if the game already started (status !== 'waiting') or the room is gone, nothing to do
-        if (!room || room.status !== 'waiting') {
-            console.log(`[TOURNEY] readyTimer fired room=${roomId} -> NO-OP (room=${!!room} status=${room?.status}, game likely already started)`);
+        if (!room || room.status !== 'waiting')
             return;
-        }
 
         const players = Object.values(room.players);
         const notReady = players.filter(p => !p.isReady);
-        const readyStates = players.map(p => `${p.userId}:${p.isReady ? 'R' : '-'}`).join(' ');
-        console.log(`[TOURNEY] readyTimer fired room=${roomId} tournament=${room.tournamentId ?? '-'} notReady=${notReady.length} [${readyStates}]`);
+
         if (notReady.length === 0) return; // race: everyone readied just in time
 
         if (room.tournamentId && this.tournamentService) {
@@ -309,8 +304,6 @@ export class MultiPlayerFacade {
 
     async setPlayerReady(roomId: string, userId: string, isReady: boolean): Promise<SetReadyResult> {
         const result = await this.roomService.setPlayerReady(roomId, userId, isReady);
-        const readyStates = Object.values(result.room.players).map(p => `${p.userId}:${p.isReady ? 'R' : '-'}`).join(' ');
-        console.log(`[TOURNEY] setReady room=${roomId} user=${userId}=${isReady} changed=${result.changed} allReady=${result.allReady} status=${result.room.status} [${readyStates}]`);
 
         //tell every player is ready (only when the state actually changed, to avoid bouncing)
         if (result.changed){
