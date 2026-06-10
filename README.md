@@ -50,7 +50,7 @@ Our team chose to develop 42Brain: an online multiplayer quiz application that a
 	Then, use `docker compose down --volumes --rmi all` to remove the application.
 
 #### Note:
-	This removes all containers, images, and volumes for this project only.
+	This command removes all containers, images, and volumes for this project only.
 
 
 # Resources
