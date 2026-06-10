@@ -22,6 +22,7 @@ export class ReadyTimerService {
     // fasse retomber le serveur à 45 s pendant que le client compte encore 60 s.
     constructor(public readonly timeoutMs: number = 60_000) {}
 
+    /* Registers the callback run when a room's readiness deadline expires. */
     setTimeoutCallback(cb: (roomId: string) => Promise<void>) {
         this.callback = cb;
     }
