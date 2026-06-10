@@ -33,9 +33,7 @@ Our team chose to develop 42Brain: an online multiplayer quiz application that a
 
 	Open a terminal.
 
-	Run `docker compose build` to build all services.
-
-	Run `docker compose up` to start the entire infrastructure.
+	Run `docker compose up --build` to buil all services and run the application.
 
 
 3. ### **Once all services are running, the application will be available at:**

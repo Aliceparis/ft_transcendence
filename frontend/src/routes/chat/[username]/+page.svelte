@@ -97,11 +97,11 @@
 	<p class="mt-1 text-pink-500 text-center">Your chat with {data.friend?.username}</p>
 
     <!-- Chat area -->
-    <div bind:this={messageContainer} class="flex flex-col w-full px-6 py-6 border border-slate-700 bg-slate-900/90 mt-8 rounded-xl h-200 overflow-y-auto gap-3">
+    <div bind:this={messageContainer} class="flex flex-col w-full px-2 sm:px-6 py-6 border border-slate-700 bg-slate-900/90 mt-8 rounded-xl h-96 sm:h-200 overflow-y-auto gap-3">
         <!-- Message container -->
 		{#each messages as message}
 			<div class="flex w-full {Number(message.receiverId) === data.user?.id ? 'justify-start' : 'justify-end'}">
-				<div class= "flex flex-col max-w-xs">
+				<div class= "flex flex-col max-w-[75%] sm:max-w-xs">
 					<span class="text-xs text-slate-400 mb-1 text-center">
 						{Number(message.receiverId) === data.user?.id ? data.friend.username : data.user.username}
 					</span>
@@ -120,10 +120,10 @@
     </div>
 	
     <!-- Input shield -->
-	 <div class="w-full px-6 mt-4">
+	 <div class="w-full px-2 sm:px-6 mt-4">
 		<div class="flex items-center w-full py-4 rounded-xl gap-3">
         	<input onkeydown={(e) => e.key === 'Enter' && handleSentMessages()} bind:value={inputContent} type="text" placeholder="Write a message" class="flex-1 bg-slate-800 border border-slate-700 text-white text-sm rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder:text-gray-500"/>
-        	<button onclick={() => handleSentMessages()} class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500">Send</button>
+        	<button onclick={() => handleSentMessages()} class="shrink-0 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500">Send</button>
     	</div>
 		{#if errors.noMoreFriend}
 			<p class="text-red-500 text-xs mb-2 text-center">{errors.noMoreFriend}</p>
