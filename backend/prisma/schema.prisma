@@ -23,11 +23,16 @@ model User {
     friendsNb   Int?         @default(0)
     status      UserStatus   @default(OFFLINE)
     role        Role         @default(USER)
+
+    githubId    String?
+    googleId    String?
+    provider    Provider?   @default(LOCAL)
+
     quizzes     Quiz[]
 
     sentFriendships     Friendship[] @relation("SentFriendships")
     receivedFriendships Friendship[] @relation("ReceivedFriendships")
-    
+
     playerMatches      PlayerMatch[]
     matchesWon         MatchResult[] @relation("MatchWinner")
 
@@ -41,7 +46,7 @@ model Quiz {
   title       String
   category    String
   questions   Question[]
-  
+
   author      User       @relation(fields: [authorId], references: [id])
   authorId    Int
 
@@ -63,15 +68,15 @@ model Friendship {
   id        Int              @id @default(autoincrement())
   createdAt DateTime         @default(now())
   updatedAt DateTime         @updatedAt
-  
+
   userId    Int
   friendId  Int
-  
+
   status    FriendshipStatus @default(PENDING)
-  
+
   user   User @relation("SentFriendships", fields: [userId], references: [id], onDelete: Cascade)
   friend User @relation("ReceivedFriendships", fields: [friendId], references: [id], onDelete: Cascade)
-  
+
   @@unique([userId, friendId])
 }
 
@@ -80,14 +85,14 @@ model Message {
     id          Int          @id @default(autoincrement())
     createdAt   DateTime     @default(now())
 
-    senderId    Int         
+    senderId    Int
     receiverId  Int
     content     String       @db.VarChar(2000)
     read        Boolean      @default(false)
 
     sender      User         @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
     receiver    User         @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
-    
+
     @@index([senderId, receiverId])
     @@index([receiverId, senderId])
 }
@@ -96,16 +101,16 @@ model Message {
 model MatchResult {
     id        Int          @id @default(autoincrement())
     createdAt DateTime     @default(now())
-    
+
     players   PlayerMatch[]
-    
+
     winnerId  Int?
     winner    User?        @relation("MatchWinner", fields: [winnerId], references: [id])
-    
+
     mode       GameMode
     quizId     Int?
     quiz       Quiz?    @relation(fields: [quizId], references: [id])
-        
+
     @@index([winnerId])
     @@index([mode])
 }
@@ -118,10 +123,10 @@ model PlayerMatch {
     score     Int   @default(0)
     correctAnswers  Int     @default(0)
     rank        Int     @default(0)
-    
+
     user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
     match     MatchResult @relation(fields: [matchId], references: [id], onDelete: Cascade)
-    
+
     @@unique([userId, matchId])
     @@index([userId])
     @@index([matchId])
@@ -147,4 +152,10 @@ enum GameMode {
     AI
     MULTIPLAYER
     TOURNAMENT
+}
+
+enum Provider {
+    GOOGLE
+    GITHUB
+    LOCAL
 }

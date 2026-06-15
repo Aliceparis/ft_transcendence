@@ -6,10 +6,11 @@ import { Apiresponse } from "../lib/api_response";
 import jwt from "jsonwebtoken";
 import { Redis } from "../lib/redis";
 import { CookieOptions } from "express";
+import {Provider} from '@prisma/client';
 
-//version for middleware of zod, add token in cookie 
+//version for middleware of zod, add token in cookie
 export class AuthController{
-    
+
     constructor(private authservice: AuthService)
     {}
 
@@ -54,7 +55,7 @@ export class AuthController{
             const {token, user} = await this.authservice.login({email, password})
             res.cookie('auth_token', token, this.cookieOptions);
             res.json(user);
-            
+
         }catch(error) {
             if (error instanceof AppError){
                 return res.status(error.statusCode).json(
@@ -66,7 +67,7 @@ export class AuthController{
                 )
         }
     }
-    
+
     /*
      * POST /logout handler. Sets the user OFFLINE, blacklists the JWT's jti in
      * Redis until its expiry, and clears the auth_token cookie. Token errors are
@@ -98,5 +99,28 @@ export class AuthController{
 
         res.clearCookie('auth_token', this.cookieOptions);
         res.json({message: "Logged out"})
+    }
+
+    //redirect to the site to login or singup
+    oauth_redirect = async (req: Request, res: Response) => {
+        const provider = req.params.provider as 'google' | 'github';
+
+        const url = await this.authservice.build_url_redirect(provider);
+        res.redirect(url)
+    }
+
+    oauth_callback = async (req:Request, res: Response) =>{
+        const provider = req.params.provider as 'google' | 'github';
+        const {code, state} = req.query as {code: string, state: string};
+
+        try{
+            const {token, user} = await this.authservice.handle_oauth_callback(provider, code, state)
+            res.cookie('auth_token', token, this.cookieOptions)
+
+            res.redirect(`${process.env.FRONT_URL}/oauth/success`)
+        }catch (error){
+            console.log("error in callback: ", error);
+            res.redirect(`${process.env.FRONT_URL}/oauth/error`)
+        }
     }
 }

@@ -1,6 +1,9 @@
 import type { UserDB, RegisterInput, UserOutput } from "@shared/user.schema";
 import {prisma} from '../lib/prisma';
 import bcrypt from 'bcrypt';
+import {Provider} from "@prisma/client"
+import {randomUUID} from 'crypto';
+
 
 export class UserRepository{
     // maps a DB user row to the public UserOutput shape (drops password/role)
@@ -34,21 +37,21 @@ export class UserRepository{
         return this.toUserOutput(newuser);
     }
 
-    // find a user by email, prepare for authendification 
+    // find a user by email, prepare for authendification
     async find_by_email(identifiant: string): Promise<UserDB|null>{
         const user = await prisma.user.findUnique({
             where: {email: identifiant}
         })
-        if (!user)  return null 
+        if (!user)  return null
         return user
     }
-    
+
     // find a user by username
     async find_by_username(identifiant: string): Promise<UserDB|null>{
         const user = await prisma.user.findUnique({
             where: {username: identifiant}
         })
-        if (!user)  return null 
+        if (!user)  return null
         return user
     }
 
@@ -124,6 +127,32 @@ export class UserRepository{
             }
         });
     }
+
+    async link_oauth_info(userId: number, info:{url: string, status: 'ONLINE'|'OFFLINE', provider: Provider}): Promise<UserDB>{
+        return await prisma.user.update({
+            where: {id: userId},
+            data: {
+                url: info.url,
+                status: info.status,
+                provider: info.provider,
+            }
+        })
+    }
+
+    async create_oauth_user(oauth_input:{email: string, username: string, url: string, provider: Provider}): Promise<UserOutput>{
+        const hashed_password = await bcrypt.hash(randomUUID(),10);
+        const user = await prisma.user.create({
+            data: {
+                email: oauth_input.email,
+                username: oauth_input.username,
+                url: oauth_input.url,
+                password: hashed_password,
+                provider: oauth_input.provider,
+                status: 'ONLINE'
+            }
+        })
+        return this.toUserOutput(user);
+    }
 }
 
 /**
@@ -133,7 +162,7 @@ export class UserRepository{
  *      3. update password （only update, level service do the check)
  *      4. find a user by email
  *      5. find a user by id(use for get profil of a user)
- *      6. 
- * 
- * 
+ *      6.
+ *
+ *
  */

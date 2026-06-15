@@ -17,6 +17,7 @@
     "paths": {
       "@shared/*": ["shared/*"],  // 给 shared 目录一个别名
     },
+    "types": ["node"]
   },
   "include": [
     "src/**/*", 

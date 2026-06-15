@@ -16,5 +16,8 @@ export function createAuthRouter(authService: AuthService): Router {
     router.post('/login', valideRequest(Login_Input), authController.login);
     router.post('/logout', authController.logout);
 
+    router.get('/oauth/:provider', authController.oauth_redirect);
+    router.get('/callback/:provider', authController.oauth_callback);
+
     return router;
 }

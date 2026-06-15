@@ -13,3 +13,13 @@ REDIS_URL=redis://redis:6379
 AVAX_RPC_URL=https://api.avax-test.network/ext/bc/C/rpc
 CHAIN_PRIVATE_KEY=
 CHAIN_CONTRACT_ADDRESS=0xE32e400b6Df659dfEA93750c76335Ff10FB6c454
+
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+GITHUB_CALLBACK_URL=https://localhost:8888/api/auth/callback/github
+
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_CALLBACK_URL=https://localhost:8888/api/auth/callback/google
+
+FRONT_URL=https://localhost:8888

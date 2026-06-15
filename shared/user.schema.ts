@@ -18,7 +18,8 @@ export const User_DB = z.object({
     played: z.number().int().nullable().optional(),
     friendsNb: z.number().int().nullable().optional(),
     status: z.enum(['ONLINE', 'OFFLINE', 'AWAY', 'IN_GAME']).optional(),
-    role: z.enum(['USER', 'ADMIN']).optional()
+    role: z.enum(['USER', 'ADMIN']).optional(),
+    provider: z.enum(['GOOGLE', 'GITHUB', 'LOCAL']).nullable().optional()
 })
 export type UserDB = z.infer<typeof User_DB>;
 
