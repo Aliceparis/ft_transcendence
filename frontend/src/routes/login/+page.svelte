@@ -13,36 +13,39 @@
         }
     });
 
+    // 💡 核心状态控制：'login' | 'register'
+    let currentView = $state<'login' | 'register'>('login');
+
+    // 响应式错误状态
     let errors = $state({
+        username: "",
         email: "",
         password: ""
     });
 
-    // 用于特殊提示：如果用户是OAuth注册的，却来这里输密码，我们给他一个明显的全局警告
+    // 用于 OAuth 账号输密码时的特殊警示
     let oauthWarning = $state("");
 
+    // 重置所有错误状态
+    function resetErrors() {
+        errors.username = "";
+        errors.email = "";
+        errors.password = "";
+        oauthWarning = "";
+    }
+
     /*
-    * Handles login form submission:
-    * - Prevents default page reload.
-    * - Validates input using Zod schema and maps errors to form fields.
-    * - Sends credentials to the backend API.
-    * - Redirects to /modes on success.
+    * 处理登录逻辑
     */
-    async function handleSubmit(event: SubmitEvent) {
+    async function handleLoginSubmit(event: SubmitEvent) {
         event.preventDefault();
+        resetErrors();
 
         const form = event.target as HTMLFormElement;
         const email = (form.email as HTMLInputElement).value;
         const password = (form.password as HTMLInputElement).value;
 
-        errors.email = "";
-        errors.password = "";
-        oauthWarning = ""; // 清空上一次的警告
-
-        const validation = Login_Input.safeParse({
-            email,
-            password
-        });
+        const validation = Login_Input.safeParse({ email, password });
         if (!validation.success) {
             for (const issue of validation.error.issues) { 
                 const field = issue.path[0] as keyof LoginInput;
@@ -56,12 +59,11 @@
                 method: 'POST',
                 credentials: 'include',
                 headers: {'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password})
+                body: JSON.stringify({ email, password })
             });
             const result = await response.json();
             
             if (!response.ok) {
-                // 💡 核心改动：捕获后端由于没有密码抛出的 AUTH_UNAUTHORIZED
                 if (result.error?.code === 'AUTH_UNAUTHORIZED') {
                     oauthWarning = result.error.message || "This account uses social login. Please click Google or GitHub below.";
                 } 
@@ -82,40 +84,116 @@
             showToast("Sorry, an internal error has occurred. Please try again later.");
         }
     }
+
+    /*
+    * 处理注册逻辑
+    */
+    async function handleRegisterSubmit(event: SubmitEvent) {
+        event.preventDefault();
+        resetErrors();
+
+        const form = event.target as HTMLFormElement;
+        const username = (form.username as HTMLInputElement).value;
+        const email = (form.email as HTMLInputElement).value;
+        const password = (form.password as HTMLInputElement).value;
+
+        // 前端基础校验拦截
+        if (!username.trim()) { errors.username = "Username is required"; return; }
+        if (!email.trim()) { errors.email = "Email is required"; return; }
+        if (password.length < 6) { errors.password = "Password must be at least 6 characters"; return; }
+
+        try {
+            const response = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, email, password })
+            });
+            const result = await response.json();
+
+            if (!response.ok) {
+                showToast(result.error?.message || "Registration failed.");
+                return;
+            }
+
+            showToast("Registration successful! Please sign in.");
+            currentView = 'login'; // 注册成功后自动切回登录页面
+        } catch (error) {
+            showToast("Sorry, an internal error has occurred. Please try again later.");
+        }
+    }
 </script>
 
 <div class="sm:pb-50 flex justify-center items-center">
     <div class="w-full max-w-80 rounded-xl px-6 py-8 border border-slate-700 bg-slate-900/90 backdrop-blur-xs text-white text-sm">
-        <h2 class="text-2xl font-semibold text-pink-500 text-center">Sign In</h2>
-        <p class="mt-1 text-pink-500 text-center">Connection to your account</p>
         
-        {#if oauthWarning}
-            <div class="mt-4 p-2 bg-amber-500/20 border border-amber-500/40 text-amber-400 text-xs rounded-md text-center animate-pulse">
-                {oauthWarning}
-            </div>
-        {/if}
+        {#if currentView === 'login'}
+            <h2 class="text-2xl font-semibold text-pink-500 text-center">Sign In</h2>
+            <p class="mt-1 text-pink-500 text-center">Connection to your account</p>
+            
+            {#if oauthWarning}
+                <div class="mt-4 p-2 bg-amber-500/20 border border-amber-500/40 text-amber-400 text-xs rounded-md text-center animate-pulse">
+                    {oauthWarning}
+                </div>
+            {/if}
 
-        <form onsubmit={handleSubmit} class="mt-6">
-            <label for="email" class="block mb-1 font-medium text-pink-500">Email address</label>
-            <input type="email" id="email" name="email" placeholder="Email" autocomplete="email" class="w-full p-2 mb-3 bg-slate-900 border border-slate-700 rounded-md focus:outline-none focus:ring-1 transition focus:ring-indigo-500 focus:border-indigo-500">
-            {#if errors.email}
-                <p class="text-red-500 text-xs mb-2">{errors.email}</p>
-            {/if}
-            
-            <label for="password" class="block mb-1 font-medium text-pink-500">Password</label>
-            <input type="password" id="password" name="password" placeholder="Password" autocomplete="current-password" class="w-full p-2 mb-2 bg-slate-900 border border-slate-700 rounded-md focus:outline-none focus:ring-1 transition focus:ring-indigo-500 focus:border-indigo-500">            
-            {#if errors.password}
-                <p class="text-red-500 text-xs mb-2">{errors.password}</p>
-            {/if}
-            
-            <div class="text-right mt-2">
-                <a href="/register" class="font-medium text-blue-500 hover:text-pink-500 transition text-xs">New here? Sign up</a>
-            </div>
-            
-            <button type="submit" class="w-full mt-6 px-4 py-2.5 font-medium text-slate-200 bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
-                Login
-            </button>
-        </form>
+            <form onsubmit={handleLoginSubmit} class="mt-6">
+                <label for="email" class="block mb-1 font-medium text-pink-500">Email address</label>
+                <input type="email" id="email" name="email" placeholder="Email" autocomplete="email" class="w-full p-2 mb-3 bg-slate-900 border border-slate-700 rounded-md focus:outline-none focus:ring-1 transition focus:ring-indigo-500 focus:border-indigo-500">
+                {#if errors.email}
+                    <p class="text-red-500 text-xs mb-2">{errors.email}</p>
+                {/if}
+                
+                <label for="password" class="block mb-1 font-medium text-pink-500">Password</label>
+                <input type="password" id="password" name="password" placeholder="Password" autocomplete="current-password" class="w-full p-2 mb-2 bg-slate-900 border border-slate-700 rounded-md focus:outline-none focus:ring-1 transition focus:ring-indigo-500 focus:border-indigo-500">            
+                {#if errors.password}
+                    <p class="text-red-500 text-xs mb-2">{errors.password}</p>
+                {/if}
+                
+                <div class="text-right mt-2">
+                    <button type="button" onclick={() => { currentView = 'register'; resetErrors(); }} class="font-medium text-blue-500 hover:text-pink-500 transition text-xs bg-transparent border-none cursor-pointer">
+                        New here? Sign up
+                    </button>
+                </div>
+                
+                <button type="submit" class="w-full mt-6 px-4 py-2.5 font-medium text-slate-200 bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
+                    Login
+                </button>
+            </form>
+
+        {:else}
+            <h2 class="text-2xl font-semibold text-emerald-500 text-center">Sign Up</h2>
+            <p class="mt-1 text-emerald-500 text-center">Create your global account</p>
+
+            <form onsubmit={handleRegisterSubmit} class="mt-6">
+                <label for="username" class="block mb-1 font-medium text-emerald-500">Username</label>
+                <input type="text" id="username" name="username" placeholder="Username" autocomplete="username" class="w-full p-2 mb-3 bg-slate-900 border border-slate-700 rounded-md focus:outline-none focus:ring-1 transition focus:ring-indigo-500 focus:border-indigo-500">
+                {#if errors.username}
+                    <p class="text-red-500 text-xs mb-2">{errors.username}</p>
+                {/if}
+
+                <label for="reg-email" class="block mb-1 font-medium text-emerald-500">Email address</label>
+                <input type="email" id="reg-email" name="email" placeholder="Email" autocomplete="email" class="w-full p-2 mb-3 bg-slate-900 border border-slate-700 rounded-md focus:outline-none focus:ring-1 transition focus:ring-indigo-500 focus:border-indigo-500">
+                {#if errors.email}
+                    <p class="text-red-500 text-xs mb-2">{errors.email}</p>
+                {/if}
+                
+                <label for="reg-password" class="block mb-1 font-medium text-emerald-500">Password</label>
+                <input type="password" id="reg-password" name="password" placeholder="Password" autocomplete="new-password" class="w-full p-2 mb-2 bg-slate-900 border border-slate-700 rounded-md focus:outline-none focus:ring-1 transition focus:ring-indigo-500 focus:border-indigo-500">            
+                {#if errors.password}
+                    <p class="text-red-500 text-xs mb-2">{errors.password}</p>
+                {/if}
+                
+                <div class="text-right mt-2">
+                    <button type="button" onclick={() => { currentView = 'login'; resetErrors(); }} class="font-medium text-blue-500 hover:text-emerald-500 transition text-xs bg-transparent border-none cursor-pointer">
+                        Already have an account? Sign in
+                    </button>
+                </div>
+                
+                <button type="submit" class="w-full mt-6 px-4 py-2.5 font-medium text-slate-200 bg-emerald-600 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition">
+                    Register
+                </button>
+            </form>
+        {/if}
 
         <div class="relative flex py-6 items-center">
             <div class="flex-grow border-t border-slate-700"></div>
