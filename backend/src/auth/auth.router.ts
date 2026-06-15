@@ -4,6 +4,7 @@ import { Router } from "express";
 import { valideRequest } from "../middleware/zod_check";
 import { Register_Input, Login_Input } from "@shared/user.schema"
 import { container } from "../container";
+import { verifyToken } from "src/middleware/verify_token";
 
 /*
  * Builds the /auth router: register and login (both Zod-validated) and logout.
@@ -18,6 +19,9 @@ export function createAuthRouter(authService: AuthService): Router {
 
     router.get('/oauth/:provider', authController.oauth_redirect);
     router.get('/callback/:provider', authController.oauth_callback);
+
+    //get user info for oauth
+    router.get('/me', verifyToken, authController.getme);
 
     return router;
 }

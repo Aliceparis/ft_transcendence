@@ -23,13 +23,13 @@ export class UserRepository{
     }
 
     // create a account
-    async create(input: RegisterInput): Promise<UserOutput>{
-        const hashed_password = await bcrypt.hash(input.password, 10);
+    async create(input:{username: string, email: string, password: string| null}): Promise<UserOutput>{
+        const passwordData = input.password ? await bcrypt.hash(input.password, 10) : null 
         const newuser = await prisma.user.create({
             data:{
                 username: input.username,
                 email: input.email,
-                password: hashed_password,
+                password: passwordData,
                 url: "/avatars/default.jpg",
 				status: 'ONLINE',
             }
@@ -128,30 +128,26 @@ export class UserRepository{
         });
     }
 
-    async link_oauth_info(userId: number, info:{url: string, status: 'ONLINE'|'OFFLINE', provider: Provider}): Promise<UserDB>{
-        return await prisma.user.update({
-            where: {id: userId},
+    async create_oauth_account(userId: number, provider: Provider, id: string){
+        return await prisma.OAuthAccount.create({
             data: {
-                url: info.url,
-                status: info.status,
-                provider: info.provider,
+                userId,
+                provider,
+                providerId: id
             }
         })
     }
 
-    async create_oauth_user(oauth_input:{email: string, username: string, url: string, provider: Provider}): Promise<UserOutput>{
-        const hashed_password = await bcrypt.hash(randomUUID(),10);
-        const user = await prisma.user.create({
-            data: {
-                email: oauth_input.email,
-                username: oauth_input.username,
-                url: oauth_input.url,
-                password: hashed_password,
-                provider: oauth_input.provider,
-                status: 'ONLINE'
-            }
+    async find_oauthaccount(provider: Provider, id: string){
+        return prisma.OAuthAccount.findUnique({
+            where: {
+                provider_providerId: {
+                    provider,
+                    providerId: id
+                }
+            },
+            include: {user: true}
         })
-        return this.toUserOutput(user);
     }
 }
 

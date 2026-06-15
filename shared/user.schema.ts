@@ -4,13 +4,13 @@ import {z} from 'zod'
 const usernameschema = z.string()
     .min(3, "Must be at least 3 characters")
     .max(20, "Must not exceed 20 characters")
-    .regex(/^[a-zA-Z0-9]+$/,"Username can only contain letters and numbers")
+    .regex(/^[a-zA-Z0-9]+(_[a-zA-Z0-9]+)*$/,"Username can only contain letters and numbers")
 
 export const User_DB = z.object({
     id: z.number().int(),
     username: usernameschema,
     email: z.string().email(),
-    password: z.string(),
+    password: z.string().nullable(),
     createdAt: z.date(),
     url: z.string().max(512).nullable().optional(),
     score: z.number().int().nullable().optional(),

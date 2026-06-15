@@ -123,4 +123,15 @@ export class AuthController{
             res.redirect(`${process.env.FRONT_URL}/oauth/error`)
         }
     }
+
+    getme = async(req: Request, res: Response) => {
+        try{
+            const useroutput = await this.authservice.get_user_by_id(Number(req.user.id))
+
+            return res.json(Apiresponse.success(useroutput, 'Fetch profile success'))
+        }catch(error){
+            console.error("error in getme: ", error);
+            res.status(500).json(Apiresponse.error("INTERNAL_ERROR", "Error fetching user"))
+        }
+    }
 }

@@ -9,13 +9,26 @@ generator client {
     provider = "prisma-client-js"
 }
 
+model OAuthAccount {
+    id          Int         @id @default(autoincrement())
+
+    provider    Provider    
+    providerId  String
+
+    userId      Int
+    user        User        @relation(fields:[userId], references: [id], onDelete: Cascade)
+
+    createdAt   DateTime    @default(now())
+
+    @@unique([provider, providerId])
+}
 /// Represents a registered user, their game statistics, relations, and current online status.
 model User {
     id          Int          @id @default(autoincrement())
     createdAt   DateTime     @default(now())
     email       String       @unique @db.VarChar(255)
     username    String       @unique @db.VarChar(255)
-    password    String       @db.VarChar(255)
+    password    String?       @db.VarChar(255)
     url         String?      @db.VarChar(512)
     score       Int?         @default(0)
     wins        Int?         @default(0)
@@ -23,10 +36,7 @@ model User {
     friendsNb   Int?         @default(0)
     status      UserStatus   @default(OFFLINE)
     role        Role         @default(USER)
-
-    githubId    String?
-    googleId    String?
-    provider    Provider?   @default(LOCAL)
+    oauthAccounts       OAuthAccount[]
 
     quizzes     Quiz[]
 
