@@ -100,9 +100,11 @@ export  class AuthService{
                 ErrorCode.AUTH_INVALID_MAIL,
                 401)
         }
-        if (user.provider !== Provider.LOCAL){
-            throw new AppError(`This account uses ${user.provider} login`,
-                ErrorCode.BAD_REQUEST
+        //if the user has no password, singup with oauth account 
+        if (!user.password){
+            throw new AppError(
+                'This account uses social login',
+                ErrorCode.AUTH_UNAUTHORIZED
             )
         }
 
@@ -175,10 +177,8 @@ export  class AuthService{
             client_secret: config.client_secret,
             code,
             redirect_uri: config.callbackURL,
+            'grant_type': 'authorization_code'
         });
-        if (provider === 'google') {
-            tokenParams.set('grant_type', 'authorization_code');
-        }
 
         const tokenRes = await fetch(config.tokenURL, {
             method: 'POST',
@@ -196,7 +196,7 @@ export  class AuthService{
         const access_token: string = tokenData.access_token;
 
         //3. get the information of user with token
-        const {username, avatarurl, email} = provider === 'google'
+        const {providerid, username, avatarurl, email} = provider === 'google'
             ? await this.get_google_user(access_token)
             : await this.get_github_user(access_token);
 
@@ -205,6 +205,7 @@ export  class AuthService{
         }
 
         const user = await this.find_or_create_oauth_user({
+            providerid,
             email,
             username,
             avatarurl,
@@ -220,34 +221,49 @@ export  class AuthService{
         return {token, user};
     }
 
-    async find_or_create_oauth_user(input: {email: string, username: string, avatarurl: string, provider: Provider})
+    async find_or_create_oauth_user(input: {providerid: string, email: string, username: string, avatarurl: string, provider: Provider})
         : Promise<UserOutput>{
+        //1. check if the user has oauth account 
+        const OAuthAccount = await this.userrepository.find_oauthaccount(input.provider, input.providerid)
+        if (OAuthAccount){
+            return {
+                id: OAuthAccount.user.id,
+                createdAt: OAuthAccount.user.createdAt,
+                username: OAuthAccount.user.username,
+                email: OAuthAccount.user.email,
+                url: OAuthAccount.user.avatarurl,
+                score: OAuthAccount.user.scope,
+                wins: OAuthAccount.user.wins,
+                played: OAuthAccount.user.played,
+                friendsNb: OAuthAccount.user.friendsNb,
+                status: OAuthAccount.user.status,
+            };
+        }
+
+        //2. check by email, il find the user, create oauth count for him, and update the avatar
         let user = await this.userrepository.find_by_email(input.email);
         if (user){
-            user = await this.userrepository.link_oauth_info(user.id, {
-                url: input.avatarurl,
-                status: 'ONLINE',
-                provider: input.provider
-            })
-            return user;
+            await this.userrepository.create_oauth_account(user.id, input.provider, input.providerid);
+            const update_user = await this.userrepository.update_avatar(user.id, input.avatarurl);
+            return update_user;
         }
-        //if not find by email, check username
-        let finalUsername = input.username;
-        let name_exist = await this.userrepository.find_by_username(input.username);
+        //3. check if the username has already used
+        let finalUsername = input.username
+        let name_exist = await this.userrepository.find_by_username(finalUsername);
         while (name_exist){
             const randomNumber = randomInt(1000, 10000);
-            const safeusername = input.username.slice(0, 16);
-            finalUsername = `${safeusername}${randomNumber}`;
-            //check if already exist
-            name_exist = await this.userrepository.find_by_username(finalUsername);
+            const safeusername = input.username.slice(0, 15);
+            finalUsername = `${safeusername}_${randomNumber}`;
+
+            name_exist = await this.userrepository.find_by_username(finalUsername)
         }
-        const newUser = await this.userrepository.create_oauth_user({
-            email: input.email,
+        const newuser = await this.userrepository.create({
             username: finalUsername,
-            url: input.avatarurl,
-            provider: input.provider.toUpperCase() as Provider
+            email: input.email,
+            password: null
         })
-        return newUser
+        await this.userrepository.create_oauth_account(newuser.id, input.provider, input.providerid);
+        return newuser;
     }
 
     private async get_github_user(access_token: string){
@@ -281,6 +297,7 @@ export  class AuthService{
             ?? emails.find((e:any) => e.verified)?.email
             ?? user.email;
         return {
+            providerid: String(user.id), 
             email: primary as string,
             username: user.login as string,
             avatarurl: user.avatar_url as string,
@@ -303,10 +320,30 @@ export  class AuthService{
         }
 
         return {
+            providerid: user.sub as string, 
             email: user.email as string,
             username: user.name as string,
             avatarurl: user.picture as string,
         }
     }
 
+    async get_user_by_id(id: number): Promise<UserOutput>{
+        const user = await this.userrepository.find_by_id(id);
+        if (!user){
+            throw new AppError('User session invalide', ErrorCode.AUTH_UNAUTHORIZED)
+        }
+
+        return {
+            id: user.id,
+            createdAt: user.createdAt,
+            username: user.username,
+            email: user.email,
+            url: user.url,
+            score: user.score,
+            wins: user.wins,
+            played: user.played,
+            friendsNb: user.friendsNb,
+            status: user.status || "ONLINE"
+        }
+    }
 }
