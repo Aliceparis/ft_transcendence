@@ -22,7 +22,8 @@ Before starting, ensure that **Docker Engine** (with Swarm mode capability) and 
 
 ### 1. Environment & Secrets Configuration (Action Required)
 
-* **For Local Development (`docker compose`):** Copy the `env_template` file at the root to `.env` and fill in your variables (`POSTGRES_USER`, `POSTGRES_PASSWORD`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `JWT_SECRET`, `CHAIN_PRIVATE_KEY`).
+* **For Local Development (`docker compose`):** Copy the `env_template` file at the root to `.env` and fill in your variables (`POSTGRES_USER`, `POSTGRES_PASSWORD`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `JWT_SECRET`, `CHAIN_PRIVATE_KEY`,
+* `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`).
   
 * **For Cluster Deployment (`docker swarm`):** Navigate to the `secrets/` directory. **You must edit or create the `.txt` files inside this folder** with your actual sensitive data (e.g., database passwords, API keys) *before* running the secrets initialization command.
 
