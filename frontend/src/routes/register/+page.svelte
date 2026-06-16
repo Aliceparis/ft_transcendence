@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { Login_Input, type LoginInput } from '$lib/shared/user.schema';
     import { showToast } from '$lib/shared/toast.svelte';
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
@@ -8,58 +7,45 @@
 
     onMount(() => {
         if (props.data?.connected) {
-            window.location.href ='/modes';
+            goto('/modes');
         }
     });
 
     let errors = $state({
+        username: "",
         email: "",
         password: ""
     });
 
-    let oauthWarning = $state("");
-
-    async function handleLoginSubmit(event: SubmitEvent) {
+    async function handleRegisterSubmit(event: SubmitEvent) {
         event.preventDefault();
+        errors.username = "";
         errors.email = "";
         errors.password = "";
-        oauthWarning = "";
 
         const form = event.target as HTMLFormElement;
+        const username = (form.username as HTMLInputElement).value;
         const email = (form.email as HTMLInputElement).value;
         const password = (form.password as HTMLInputElement).value;
 
-        const validation = Login_Input.safeParse({ email, password });
-        if (!validation.success) {
-            for (const issue of validation.error.issues) {
-                const field = issue.path[0] as keyof LoginInput;
-                errors[field] = issue.message;
-            }
-            return;
-        }
+        if (!username.trim()) { errors.username = "Username is required"; return; }
+        if (!email.trim()) { errors.email = "Email is required"; return; }
+        if (password.length < 6) { errors.password = "Password must be at least 6 characters"; return; }
 
         try {
-            const response = await fetch('/api/auth/login', {
+            const response = await fetch('/api/auth/register', {
                 method: 'POST',
-                credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify({ username, email, password })
             });
             const result = await response.json();
 
             if (!response.ok) {
-                if (result.error?.code === 'AUTH_UNAUTHORIZED') {
-                    oauthWarning = result.error.message || "This account uses social login.";
-                } else if (result.error?.code === 'AUTH_INVALID_MAIL') {
-                    errors.email = result.error.message;
-                } else if (result.error?.code === 'AUTH_INVALID_PASSWORD') {
-                    errors.password = result.error.message;
-                } else {
-                    showToast(result.error?.message || "Login failed.");
-                }
+                showToast(result.error?.message || "Registration failed.");
                 return;
             }
 
+            showToast("Registration successful! Please sign in.");
             window.location.href ='/modes';
         } catch {
             showToast("Sorry, an internal error has occurred. Please try again later.");
@@ -70,16 +56,17 @@
 <div class="sm:pb-50 flex justify-center items-center">
     <div class="flex flex-col justify-center w-full max-w-80 rounded-xl px-6 py-8 border border-slate-700 bg-slate-900/90 backdrop-blur-xs text-white text-sm">
 
-        <h2 class="text-2xl font-semibold text-pink-500 text-center">Sign In</h2>
-        <p class="mt-1 text-pink-500 text-center">Welcome back</p>
+        <h2 class="text-2xl font-semibold text-pink-500 text-center">Sign Up</h2>
+        <p class="mt-1 text-pink-500 text-center">Create your account</p>
 
-        {#if oauthWarning}
-            <div class="mt-4 p-2 bg-amber-500/20 border border-amber-500/40 text-amber-400 text-xs rounded-md text-center">
-                {oauthWarning}
-            </div>
-        {/if}
+        <form onsubmit={handleRegisterSubmit} class="mt-6">
+            <label for="username" class="block mb-1 font-medium text-pink-500">Username</label>
+            <input type="text" id="username" name="username" placeholder="Username" autocomplete="username"
+                class="w-full p-2 mb-2 bg-slate-900 border border-slate-700 rounded-md focus:outline-none focus:ring-1 transition focus:ring-indigo-500 focus:border-indigo-500">
+            {#if errors.username}
+                <p class="text-red-500 text-xs mb-2">{errors.username}</p>
+            {/if}
 
-        <form onsubmit={handleLoginSubmit} class="mt-6">
             <label for="email" class="block mb-1 font-medium text-pink-500">Email address</label>
             <input type="email" id="email" name="email" placeholder="Email" autocomplete="email"
                 class="w-full p-2 mb-2 bg-slate-900 border border-slate-700 rounded-md focus:outline-none focus:ring-1 transition focus:ring-indigo-500 focus:border-indigo-500">
@@ -88,18 +75,18 @@
             {/if}
 
             <label for="password" class="block mb-1 font-medium text-pink-500">Password</label>
-            <input type="password" id="password" name="password" placeholder="Password" autocomplete="current-password"
+            <input type="password" id="password" name="password" placeholder="Password" autocomplete="new-password"
                 class="w-full p-2 mb-2 bg-slate-900 border border-slate-700 rounded-md focus:outline-none focus:ring-1 transition focus:ring-indigo-500 focus:border-indigo-500">
             {#if errors.password}
                 <p class="text-red-500 text-xs mb-2">{errors.password}</p>
             {/if}
 
             <div class="text-right mt-2">
-                <a href="/register" class="font-medium text-blue-500 hover:text-pink-500">New here? Sign up</a>
+                <a href="/" class="font-medium text-blue-500 hover:text-pink-500">Already have an account? Sign in</a>
             </div>
 
             <button type="submit" class="w-full mt-6 px-4 py-2.5 font-medium text-slate-200 bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                Sign In
+                Register
             </button>
         </form>
 
@@ -121,7 +108,7 @@
             </a>
             <a href="/api/auth/oauth/github" class="flex items-center justify-center gap-2 p-2 bg-slate-800 border border-slate-700 rounded-md hover:bg-slate-700 transition font-medium text-slate-200">
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.044C22 6.484 17.522 2 12 2z"/>
                 </svg>
                 GitHub
             </a>

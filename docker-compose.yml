@@ -1,7 +1,7 @@
 services:
   db:
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -h localhost -U trans_admin -d quiz_db"]
       interval: 3s
       timeout: 3s
       retries: 10
@@ -71,6 +71,11 @@ services:
         condition: service_healthy
     env_file:
       - .env
+    secrets:
+      - jwt_secret
+      - github_client_secret
+      - google_client_secret
+      - chain_private_key
 
   frontend:
     healthcheck:
@@ -112,3 +117,14 @@ volumes:
 networks:
   transcendence_network:
     name: transcendence_network
+
+secrets:
+  chain_private_key:
+    file: ./secrets/chain_private_key.txt
+  github_client_secret:
+    file: ./secrets/github_client_secret.txt
+  google_client_secret:
+    file: ./secrets/google_client_secret.txt
+  jwt_secret:
+    file: ./secrets/jwt_secret.txt
+
