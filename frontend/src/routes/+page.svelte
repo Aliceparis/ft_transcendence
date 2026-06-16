@@ -8,7 +8,7 @@
 
     onMount(() => {
         if (props.data?.connected) {
-            goto('/modes');
+            window.location.href ='/modes';
         }
     });
 
@@ -60,7 +60,7 @@
                 return;
             }
 
-            goto('/modes');
+            window.location.href ='/modes';
         } catch {
             showToast("Sorry, an internal error has occurred. Please try again later.");
         }

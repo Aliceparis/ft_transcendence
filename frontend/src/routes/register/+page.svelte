@@ -46,7 +46,7 @@
             }
 
             showToast("Registration successful! Please sign in.");
-            goto('/');
+            window.location.href ='/modes';
         } catch {
             showToast("Sorry, an internal error has occurred. Please try again later.");
         }
